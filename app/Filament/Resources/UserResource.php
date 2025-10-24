@@ -55,17 +55,23 @@ class UserResource extends Resource
                     ->label('Пароль'),
                     
                 Forms\Components\Select::make('roles')
-                    ->multiple()
-                    ->options(function () {
-                        return \Spatie\Permission\Models\Role::pluck('name', 'id');
-                    })
-                    ->preload()
-                    ->required()
-                    ->label('Роль')
-                    ->saveRelationshipsUsing(function ($component, $state) {
-                        $component->getRecord()->syncRoles($state);
-                    })
-                    ->dehydrated(false),
+									->multiple()
+									->options(function () {
+											return \Spatie\Permission\Models\Role::pluck('name', 'name');
+									})
+									->preload()
+									->required()
+									->label('Роль')
+									->afterStateHydrated(function ($component, $record) {
+											if ($record) {
+													$component->state($record->roles->pluck('name')->toArray());
+											}
+									})
+									->saveRelationshipsUsing(function ($component, $state) {
+											$component->getRecord()->syncRoles($state);
+									})
+									->dehydrated(false),
+
             ]);
     }
 
