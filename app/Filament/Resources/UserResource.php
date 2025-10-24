@@ -57,7 +57,7 @@ class UserResource extends Resource
                 Forms\Components\Select::make('roles')
                     ->multiple()
                     ->options(function () {
-                        return \Spatie\Permission\Models\Role::pluck('name', 'id');
+                        return \Spatie\Permission\Models\Role::pluck('name', 'name');
                     })
                     ->preload()
                     ->required()
