@@ -28,52 +28,50 @@ class UserResource extends Resource
     // Блокирует прямой доступ по URL для роли 'user'
     public static function canAccess(): bool
     {
-        return auth()->user()->hasAnyRole(['super-admin', 'admin']);
+        return auth()->user()->hasAnyRole(['super-admin', 'admin', 'company-admin', 'manager', 'client']);
     }
 
     public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255)
-                    ->label('Имя'),
-                    
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255)
-                    ->label('Email'),
-                    
-                Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                    ->dehydrated(fn ($state) => filled($state))
-                    ->required(fn (string $context): bool => $context === 'create')
-                    ->maxLength(255)
-                    ->label('Пароль'),
-                    
-                Forms\Components\Select::make('roles')
-									->multiple()
-									->options(function () {
-											return \Spatie\Permission\Models\Role::pluck('name', 'name');
-									})
-									->preload()
-									->required()
-									->label('Роль')
-									->afterStateHydrated(function ($component, $record) {
-											if ($record) {
-													$component->state($record->roles->pluck('name')->toArray());
-											}
-									})
-									->saveRelationshipsUsing(function ($component, $state) {
-											$component->getRecord()->syncRoles($state);
-									})
-									->dehydrated(false),
+		{
+				return $form
+						->schema([
+								Forms\Components\TextInput::make('name')
+										->required()
+										->maxLength(255)
+										->label('Имя'),
+								
+								Forms\Components\TextInput::make('email')
+										->email()
+										->required()
+										->maxLength(255)
+										->label('Email'),
+								
+								Forms\Components\TextInput::make('password')
+										->password()
+										->required(fn (string $context): bool => $context === 'create')
+										->maxLength(255)
+										->label('Пароль'),
+								
+								Forms\Components\Select::make('role')
+										->label('Роль')
+										->options([
+												'super-admin' => 'Супер-администратор',
+												'company-admin' => 'Администратор компании',
+												'manager' => 'Менеджер',
+												'client' => 'Клиент',
+										])
+										->required()
+										->reactive()
+										->afterStateUpdated(fn ($state, callable $set) => $set('role', $state)),
+								
+								Forms\Components\Select::make('company_id')
+										->label('Компания')
+										->relationship('company', 'name')
+										->visible(fn (callable $get) => in_array($get('role'), ['company-admin', 'manager', 'client']))
+										->required(fn (callable $get) => in_array($get('role'), ['company-admin', 'manager', 'client'])),
+						]);
+		}
 
-            ]);
-    }
 
     public static function table(Table $table): Table
     {

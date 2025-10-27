@@ -6,6 +6,7 @@ use App\Filament\Resources\StationResource;
 use App\Models\StationLog;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
+use Filament\Notifications\Notification;
 
 class StationLogs extends Page
 {
@@ -27,5 +28,19 @@ class StationLogs extends Page
         return $this->record->logs()
             ->orderBy('created_at', 'desc')
             ->paginate(10);
+    }
+
+    public function deleteLog($id)
+    {
+        $log = StationLog::find($id);
+        
+        if ($log && $log->station_id === $this->record->id) {
+            $log->delete();
+            
+            Notification::make()
+                ->title('Запись удалена')
+                ->success()
+                ->send();
+        }
     }
 }

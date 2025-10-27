@@ -7,13 +7,12 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Hash;
 
 class UsersRelationManager extends RelationManager
 {
     protected static string $relationship = 'users';
 
-    protected static ?string $title = 'Пользователи';
+    protected static ?string $title = 'Пользователи компании';
 
     public function form(Form $form): Form
     {
@@ -23,38 +22,39 @@ class UsersRelationManager extends RelationManager
                     ->required()
                     ->maxLength(255)
                     ->label('Имя'),
-                    
+                
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
                     ->maxLength(255)
-                    ->unique(ignoreRecord: true)
-                    ->label('Почта'),
-                    
+                    ->label('Email'),
+                
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->required(fn (string $context): bool => $context === 'create')
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->dehydrated(fn ($state) => filled($state))
                     ->maxLength(255)
                     ->label('Пароль'),
-                    
-                Forms\Components\Select::make('role')
+                
+                Forms\Components\Select::make('roles')
+                    ->label('Роль')
                     ->options([
-                        'admin' => 'Админ',
-                        'user' => 'Пользователь',
+                        'company-admin' => 'Администратор компании',
+                        'manager' => 'Менеджер',
+                        'client' => 'Клиент',
                     ])
-                    ->required()
-                    ->default('user')
-                    ->label('Роль'),
-                    
-                Forms\Components\Select::make('station_ids')
+                    ->multiple()
+                    ->required(),
+                
+                Forms\Components\Select::make('stations')
+                    ->label('Станции')
                     ->relationship('stations', 'name', function ($query) {
-                        $companyId = $this->getOwnerRecord()->id;
-                        return $query->where('company_id', $companyId);
+                        // Показываем только станции текущей компании
+                        return $query->where('company_id', $this->ownerRecord->id);
                     })
                     ->multiple()
                     ->preload()
-                    ->helperText('Если не выбрано ни одной станции, пользователь получит доступ ко всем станциям компании')
-                    ->label('Доступ к станциям'),
+                    ->searchable(),
             ]);
     }
 
@@ -64,106 +64,69 @@ class UsersRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ->sortable()
                     ->label('Имя'),
-                    
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable()
-                    ->sortable()
-                    ->label('Почта'),
-                    
+                    ->label('Email'),
                 Tables\Columns\TextColumn::make('roles.name')
                     ->badge()
-                    ->label('Роль системы'),
-                    
+                    ->label('Роли'),
                 Tables\Columns\TextColumn::make('stations.name')
                     ->badge()
-                    ->getStateUsing(function ($record) {
-                        $companyId = $this->getOwnerRecord()->id;
-                        $userStations = $record->stations()
-                            ->where('company_id', $companyId)
-                            ->get();
-                        
-                        if ($userStations->isEmpty()) {
-                            return ['Все станции'];
-                        }
-                        
-                        return $userStations->pluck('name')->toArray();
-                    })
-                    ->label('Доступ к станциям'),
-                    
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('Создан'),
+                    ->label('Станции')
+                    ->separator(','),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-								Tables\Actions\CreateAction::make()
-										->after(function ($record, $livewire) {
-												\Log::info('After create - User ID:', ['id' => $record->id]);
-												
-												// Получаем данные формы
-												$formData = $livewire->getMountedTableActionForm()->getRawState();
-												\Log::info('Form raw state:', $formData);
-												
-												// Назначаем роль
-												if (isset($formData['role'])) {
-														$record->syncRoles([$formData['role']]);
-												}
-												
-												// Привязываем станции
-												if (isset($formData['station_ids']) && !empty($formData['station_ids'])) {
-														$record->stations()->sync($formData['station_ids']);
-												}
-										}),
-
-						])
-
-
-
+                Tables\Actions\CreateAction::make()
+                    ->mutateFormDataUsing(function (array $data): array {
+                        // Хешируем пароль
+                        if (isset($data['password'])) {
+                            $data['password'] = bcrypt($data['password']);
+                        }
+                        return $data;
+                    })
+                    ->after(function ($record, array $data) {
+                        // Назначаем роли
+                        if (isset($data['roles'])) {
+                            $record->syncRoles($data['roles']);
+                        }
+                        
+                        // Привязываем станции
+                        if (isset($data['stations'])) {
+                            $record->stations()->sync($data['stations']);
+                        }
+                    }),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make()
-										->fillForm(function ($record): array {
-												$role = $record->roles->first();
-												$stationIds = $record->stations()->pluck('stations.id')->toArray();
-												
-												return [
-														'name' => $record->name,
-														'email' => $record->email,
-														'role' => $role ? $role->name : 'user',
-														'station_ids' => $stationIds,
-												];
-										})
-										->after(function ($record, $livewire) {
-												\Log::info('Edit after - User ID:', ['id' => $record->id]);
-												
-												// Получаем данные формы
-												$formData = $livewire->getMountedTableActionForm()->getRawState();
-												\Log::info('Edit form raw state:', $formData);
-												
-												// Обновляем роль
-												if (isset($formData['role'])) {
-														$record->syncRoles([$formData['role']]);
-														\Log::info('Role updated:', ['role' => $formData['role']]);
-												}
-												
-												// Обновляем станции
-												if (isset($formData['station_ids'])) {
-														if (!empty($formData['station_ids'])) {
-																\Log::info('Syncing stations:', ['ids' => $formData['station_ids']]);
-																$record->stations()->sync($formData['station_ids']);
-														} else {
-																\Log::info('Detaching all stations');
-																$record->stations()->detach();
-														}
-												}
-										}),
-
+                    ->mutateFormDataUsing(function (array $data): array {
+                        // Удаляем пароль, если он не заполнен
+                        if (empty($data['password'])) {
+                            unset($data['password']);
+                        } else {
+                            $data['password'] = bcrypt($data['password']);
+                        }
+                        return $data;
+                    })
+                    ->after(function ($record, array $data) {
+                        // Синхронизируем роли
+                        if (isset($data['roles'])) {
+                            $record->syncRoles($data['roles']);
+                        }
+                        
+                        // Синхронизируем станции
+                        if (isset($data['stations'])) {
+                            $record->stations()->sync($data['stations']);
+                        }
+                    })
+                    ->mutateRecordDataUsing(function ($record, array $data): array {
+                        // Загружаем текущие роли и станции
+                        $data['roles'] = $record->roles->pluck('name')->toArray();
+                        $data['stations'] = $record->stations->pluck('id')->toArray();
+                        return $data;
+                    }),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

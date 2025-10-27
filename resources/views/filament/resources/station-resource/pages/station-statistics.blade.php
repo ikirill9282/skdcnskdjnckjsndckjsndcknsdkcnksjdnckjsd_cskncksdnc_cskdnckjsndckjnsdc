@@ -1,120 +1,122 @@
-@php
-    $programNames = ['Macro belt', 'Pastel belt', 'Pododeyal', 'Reziar belt', 'Narodach', 'Strike 40', 'Pereari', 'Strike 30', 'Kumyo 90', 'Kumyo 60', 'Delicate', 'Forma', '', '', '', '', '', '', ''];
-		$chemNames = ['Power', 'Boost', 'Oxy', 'Soft', 'Electr 40', 'Electr 40', 'Electr 16', 'Electr 21'];
-    $chemNamesStir = ['Power', 'Boost', 'Oxy', 'Soft', 'Electr 40', 'Electr 40'];
-    $highlightDates = ['23.01.2025', '17.01.2025'];
-@endphp
-
 <x-filament-panels::page>
     <div class="space-y-4">
-
-       
-
-        {{-- Фильтры даты --}}
-        <div class="flex gap-4 items-end mb-2">
-            <div>
-                <label class="text-sm font-medium">выбор периода с</label>
-                <input type="date" wire:model.live="dateFrom" class="rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900">
-            </div>
-            <div>
-                <label class="text-sm font-medium">по</label>
-                <input type="date" wire:model.live="dateTo" class="rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900">
+        {{-- Фильтр по датам --}}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <div class="flex gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-medium mb-2">выбор периода с</label>
+                    <input 
+                        type="date" 
+                        wire:model.live="startDate"
+                        class="rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
+                    >
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">по</label>
+                    <input 
+                        type="date" 
+                        wire:model.live="endDate"
+                        class="rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
+                    >
+                </div>
             </div>
         </div>
 
         {{-- Таблица статистики --}}
-        <div class="overflow-x-auto">
-            <table class="w-full text-xs border-collapse">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+            <table class="w-full border-collapse text-xs">
                 <thead>
+                    {{-- Первая строка заголовка --}}
                     <tr>
-                        <th colspan="3" class="text-left bg-blue-50 px-2 py-1 border font-medium"></th>
-												
-												@foreach($programNames as $name)
-													<th colspan="2" class="border p-1">{{ $name }} - {{ $loop->iteration }}</th>
-												@endforeach
+                        <th colspan="3" class="text-left bg-blue-50 dark:bg-blue-900 px-2 py-1 border dark:border-gray-700 font-medium"></th>
+                        
+                        @foreach($this->getProgramNames() as $name)
+                            <th colspan="2" class="border dark:border-gray-700 p-1">{{ $name }} - {{ $loop->iteration }}</th>
+                        @endforeach
 
-                        <th class="bg-blue-200 px-2 py-1 border font-medium">всего</th>
-												@foreach($chemNames as $name)
-													<th colspan="2" class="border p-1">{{ $name }} - {{ $loop->iteration }}</th>
-												@endforeach
-												<th class="bg-blue-200 px-2 py-1 border font-medium">всего</th>
-												@foreach($chemNames as $name)
-													<th colspan="2" class="border p-1">{{ $name }} - {{ $loop->iteration }}</th>
-												@endforeach
-												<th class="bg-blue-200 px-2 py-1 border font-medium">всего</th>
+                        <th class="bg-blue-200 dark:bg-blue-700 px-2 py-1 border dark:border-gray-700 font-medium">всего</th>
+                        
+                        @foreach($this->getChemNames() as $name)
+                            <th colspan="2" class="border dark:border-gray-700 p-1">{{ $name }} - {{ $loop->iteration }}</th>
+                        @endforeach
+                        
+                        <th class="bg-blue-200 dark:bg-blue-700 px-2 py-1 border dark:border-gray-700 font-medium">всего</th>
+                        
+                        @foreach($this->getMachineNames() as $name)
+                            <th colspan="2" class="border dark:border-gray-700 p-1">{{ $name }} - {{ $loop->iteration }}</th>
+                        @endforeach
+                        
+                        <th class="bg-blue-200 dark:bg-blue-700 px-2 py-1 border dark:border-gray-700 font-medium">всего</th>
+                        <th class="border dark:border-gray-700 p-1">Действия</th>
                     </tr>
-                    <tr class="bg-blue-100">
-                        <th colspan="3" class="border p-1">дата</th>
-                        <th colspan="38" class="border p-1">тонн всего</th>
-                        <th colspan="1" class="border p-1"></th>
-                        <th colspan="16" class="border p-1">Литров всего</th>
-                        <th colspan="1" class="border p-1"></th>
-                        <th colspan="16" class="border p-1">кг в каждой стиральной машине</th>
-                        <th colspan="1" class="border p-1"></th>
-                       
+                    
+                    {{-- Вторая строка заголовка --}}
+                    <tr class="bg-blue-100 dark:bg-blue-800">
+                        <th colspan="3" class="border dark:border-gray-700 p-1">дата</th>
+                        <th colspan="38" class="border dark:border-gray-700 p-1">тонн всего</th>
+                        <th colspan="1" class="border dark:border-gray-700 p-1"></th>
+                        <th colspan="16" class="border dark:border-gray-700 p-1">Литров всего</th>
+                        <th colspan="1" class="border dark:border-gray-700 p-1"></th>
+                        <th colspan="16" class="border dark:border-gray-700 p-1">кг в каждой стиральной машине</th>
+                        <th colspan="1" class="border dark:border-gray-700 p-1"></th>
+                        <th colspan="1" class="border dark:border-gray-700 p-1"></th>
                     </tr>
                 </thead>
+                
                 <tbody>
-									@php
-									// Пример данных; у тебя будет приходить из контроллера или компонента
-									$rows = [
-											[
-													'date' => '24.01.2025',
-													'programs' => [2.8, 1.4, 1.7, 0.1, 0.1, 1.0, 0.2, 0.2, 0.5, 1.2, 1.9, 0, 0, 0, 0, 0, 0, 0, 0],
-													'total' => 11.9,
-													'highlight' => false,
-											],
-											[
-													'date' => '23.01.2025',
-													'programs' => [40, 40, 40, 0, 0, 80, 0, 10, 30, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-													'total' => 360,
-													'highlight' => true,
-											],
-											// Добавь остальные строки по аналогии...
-									];
-									@endphp
-									<tr>
-                        <th colspan="3" class="text-left bg-blue-50 px-2 py-1 border font-medium">21.01.25</th>
-												
-												@foreach($programNames as $name)
-													<th colspan="2" class="border p-1">{{ $name }} - {{ $loop->iteration }}</th>
-												@endforeach
-
-                        <th class="bg-blue-200 px-2 py-1 border font-medium">всего</th>
-												@foreach($chemNames as $name)
-													<th colspan="2" class="border p-1">{{ $name }} - {{ $loop->iteration }}</th>
-												@endforeach
-												<th class="bg-blue-200 px-2 py-1 border font-medium">всего</th>
-												@foreach($chemNames as $name)
-													<th colspan="2" class="border p-1">{{ $name }} - {{ $loop->iteration }}</th>
-												@endforeach
-												<th class="bg-blue-200 px-2 py-1 border font-medium">всего</th>
-                    </tr>
-
-                    @forelse($statistics as $stat)
-                        @php
-                            $highlightDates = ['23.01.2025', '17.01.2025']; // подставьте ваши даты
-                        @endphp
-                        <tr>
-                        <th colspan="3" class="text-left bg-blue-50 px-2 py-1 border font-medium"></th>
-												
-												@foreach($programNames as $name)
-													<th colspan="2" class="border p-1">{{ $name }} - {{ $loop->iteration }}</th>
-												@endforeach
-
-                        <th class="bg-blue-200 px-2 py-1 border font-medium">всего</th>
-												@foreach($chemNames as $name)
-													<th colspan="2" class="border p-1">{{ $name }} - {{ $loop->iteration }}</th>
-												@endforeach
-												<th class="bg-blue-200 px-2 py-1 border font-medium">всего</th>
-												@foreach($chemNames as $name)
-													<th colspan="2" class="border p-1">{{ $name }} - {{ $loop->iteration }}</th>
-												@endforeach
-												<th class="bg-blue-200 px-2 py-1 border font-medium">всего</th>
-                    </tr>
+                    {{-- Данные статистики --}}
+                    @forelse($this->getStatistics() as $stat)
+                        <tr class="">
+                            <td class="border dark:border-gray-700 p-2" colspan="3">{{ $stat->date->format('d.m.y') }}</td>
+                            
+                            @foreach(range(1, 19) as $i)
+                                <td class="border dark:border-gray-700 p-2 text-center" colspan="2">
+                                    {{ $stat->data["column_$i"] ?? '-' }}
+                                </td>
+                            @endforeach
+                            
+                            <td class="border dark:border-gray-700 p-2 text-center font-bold">
+                                {{ $stat->data['total'] ?? 0 }}
+                            </td>
+                            
+                            {{-- Литры всего (8 химических средств) --}}
+                            @foreach(range(1, 8) as $i)
+                                <td class="border dark:border-gray-700 p-2 text-center" colspan="2">
+                                    {{ $stat->data["liters_$i"] ?? '-' }}
+                                </td>
+                            @endforeach
+                            
+                            <td class="border dark:border-gray-700 p-2 text-center font-bold">
+                                {{ $stat->data['liters_total'] ?? 0 }}
+                            </td>
+                            
+                            {{-- кг в каждой стиральной машине (8 химических средств) --}}
+                            @foreach(range(1, 6) as $i)
+                                <td class="border dark:border-gray-700 p-2 text-center" colspan="2">
+                                    {{ $stat->data["kg_$i"] ?? '-' }}
+                                </td>
+                            @endforeach
+                            
+                            <td class="border dark:border-gray-700 p-2 text-center font-bold">
+                                {{ $stat->data['kg_total'] ?? 0 }}
+                            </td>
+                            
+                            {{-- Кнопка удалить --}}
+                            <td class="border dark:border-gray-700 p-2 text-center">
+                                <button 
+                                    wire:click="deleteStatistic({{ $stat->id }})"
+                                    wire:confirm="Вы уверены, что хотите удалить эту запись?"
+                                    class="text-red-600 hover:text-red-800 dark:text-red-400"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
                     @empty
                         <tr>
-                            <td colspan="76" class="border p-4 text-center text-gray-500">
+                            <td colspan="62" class="border dark:border-gray-700 p-4 text-center text-gray-500">
                                 Нет данных за выбранный период
                             </td>
                         </tr>

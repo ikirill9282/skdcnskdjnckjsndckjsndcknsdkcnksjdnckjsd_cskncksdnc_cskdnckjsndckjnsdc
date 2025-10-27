@@ -61,5 +61,10 @@ class Station extends Model
 		{
 				return $this->hasMany(Program::class);
 		}
+		public function statistics()
+		{
+				return $this->hasMany(Statistic::class);
+		}
+
 
 }

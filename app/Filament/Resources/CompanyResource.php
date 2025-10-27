@@ -27,7 +27,7 @@ class CompanyResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()->hasRole('super-admin');
+        return auth()->user()->hasRole(['super-admin', 'admin', 'company-admin', 'manager', 'client']);
     }
 
     public static function form(Form $form): Form
