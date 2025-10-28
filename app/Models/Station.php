@@ -66,5 +66,10 @@ class Station extends Model
 				return $this->hasMany(Statistic::class);
 		}
 
+		public function settingValues()
+		{
+				return $this->hasMany(StationSettingValue::class);
+		}
+
 
 }

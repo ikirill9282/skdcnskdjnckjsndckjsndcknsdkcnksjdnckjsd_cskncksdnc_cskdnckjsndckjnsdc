@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Station;
+use App\Models\StationSettingValue;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -17,6 +18,24 @@ class StationSettingsApiController extends Controller
                 'status' => 'error',
                 'message' => 'Unsupported endpoint value.',
             ], 400);
+        }
+
+        $payload = $request->json()->all();
+
+        if (empty($payload)) {
+            $raw = trim($request->getContent() ?? '');
+
+            if ($raw !== '' && str_starts_with($raw, '[')) {
+                $decoded = json_decode($raw, true);
+
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $payload = $decoded;
+                }
+            }
+        }
+
+        if (is_array($payload) && Arr::isList($payload)) {
+            return $this->storeCompactPayload($payload);
         }
 
         $validated = $request->validate([
@@ -96,6 +115,52 @@ class StationSettingsApiController extends Controller
         ]);
     }
 
+    protected function storeCompactPayload(array $payload): JsonResponse
+    {
+        if (count($payload) < 3) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid payload size.',
+            ], 422);
+        }
+
+        $stationCode = (string) array_shift($payload);
+        $blockNumber = (int) array_shift($payload);
+        $values = array_slice(array_values($payload), 0, 19);
+
+        $station = Station::where('code', $stationCode)->first();
+
+        if (! $station) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Station not found.',
+            ], 404);
+        }
+
+        foreach ($values as $index => $value) {
+            StationSettingValue::updateOrCreate(
+                [
+                    'station_id' => $station->id,
+                    'block_number' => $blockNumber,
+                    'setting_index' => $index + 1,
+                ],
+                [
+                    'value' => is_scalar($value) ? (string) $value : json_encode($value),
+                ],
+            );
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'Setting block stored.',
+            'block' => [
+                'station_code' => $stationCode,
+                'block_number' => $blockNumber,
+                'count' => count($values),
+            ],
+        ]);
+    }
+
     public function show(Request $request): JsonResponse
     {
         if ($request->query('endpoint') && $request->query('endpoint') !== 'receive-settings-get') {
@@ -114,7 +179,9 @@ class StationSettingsApiController extends Controller
             ], 422);
         }
 
-        $station = Station::where('code', (string) $stationIdentifier)->first();
+        $station = Station::with('settingValues')
+            ->where('code', (string) $stationIdentifier)
+            ->first();
 
         if (! $station) {
             return response()->json([
@@ -122,6 +189,21 @@ class StationSettingsApiController extends Controller
                 'message' => 'Station not found.',
             ], 404);
         }
+
+        $settingBlocks = $station->settingValues
+            ->sortBy(function ($item) {
+                return sprintf('%05d-%02d', $item->block_number, $item->setting_index);
+            })
+            ->groupBy('block_number')
+            ->map(function ($group) {
+                return $group
+                    ->sortBy('setting_index')
+                    ->mapWithKeys(function ($item) {
+                        return [$item->setting_index => $item->value];
+                    })
+                    ->toArray();
+            })
+            ->toArray();
 
         return response()->json([
             'status' => 'ok',
@@ -146,8 +228,8 @@ class StationSettingsApiController extends Controller
                 'days_worked' => $station->days_worked,
                 'warnings' => $station->warnings,
                 'errors' => $station->errors,
+                'setting_blocks' => $settingBlocks,
             ],
         ]);
     }
 }
-

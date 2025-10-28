@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\StationResource\Pages;
 
 use App\Filament\Resources\StationResource;
+use App\Models\StationSettingValue;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
@@ -23,19 +24,45 @@ class StationStatus extends Page
     public $volume;
     public $washing_machine;
     public $process_completion;
+    protected array $settingsBlock = [];
 
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
 
         $this->ensureStationManagementAccess();
-        
-        // Загружаем текущие данные (можно из связанной модели или JSON-поля)
-        $this->status = $this->record->current_status ?? '';
-        $this->detergent = $this->record->current_detergent ?? '';
-        $this->volume = $this->record->current_volume ?? '';
-        $this->washing_machine = $this->record->current_washing_machine ?? '';
-        $this->process_completion = $this->record->current_process_completion ?? 0;
+        $this->loadSettingsBlock();
+
+        $this->status = $this->valueWithFallback(
+            $this->record->current_status,
+            $this->blockValue(1),
+        );
+
+        $this->detergent = $this->valueWithFallback(
+            $this->record->current_detergent,
+            $this->blockValue(2),
+        );
+
+        $this->volume = $this->coerceNumeric(
+            $this->valueWithFallback(
+                $this->record->current_volume,
+                $this->blockValue(3),
+                0,
+            ),
+        );
+
+        $this->washing_machine = $this->valueWithFallback(
+            $this->record->current_washing_machine,
+            $this->blockValue(4),
+        );
+
+        $this->process_completion = $this->coerceNumeric(
+            $this->valueWithFallback(
+                $this->record->current_process_completion,
+                $this->blockValue(5),
+                0,
+            ),
+        );
     }
 
     public function save()
@@ -57,9 +84,73 @@ class StationStatus extends Page
             'current_process_completion' => $this->process_completion,
         ]);
 
+        $this->syncSettingsBlock();
+
         Notification::make()
             ->title('Сохранено')
             ->success()
             ->send();
+    }
+
+    protected function loadSettingsBlock(): void
+    {
+        $this->record->loadMissing('settingValues');
+
+        $this->settingsBlock = $this->record->settingValues
+            ->where('block_number', 306)
+            ->sortBy('setting_index')
+            ->mapWithKeys(fn ($item) => [$item->setting_index => $item->value])
+            ->toArray();
+    }
+
+    protected function blockValue(int $index): mixed
+    {
+        return $this->settingsBlock[$index] ?? null;
+    }
+
+    protected function valueWithFallback(mixed $primary, mixed $fallback, mixed $default = ''): mixed
+    {
+        if ($fallback !== null && $fallback !== '') {
+            return $fallback;
+        }
+
+        if ($primary !== null && $primary !== '') {
+            return $primary;
+        }
+
+        return $default;
+    }
+
+    protected function syncSettingsBlock(): void
+    {
+        $map = [
+            1 => $this->status,
+            2 => $this->detergent,
+            3 => $this->volume,
+            4 => $this->washing_machine,
+            5 => $this->process_completion,
+        ];
+
+        foreach ($map as $index => $value) {
+            StationSettingValue::updateOrCreate(
+                [
+                    'station_id' => $this->record->id,
+                    'block_number' => 306,
+                    'setting_index' => $index,
+                ],
+                [
+                    'value' => (string) $value,
+                ],
+            );
+        }
+    }
+
+    protected function coerceNumeric(mixed $value, float $default = 0): float
+    {
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+
+        return $default;
     }
 }
