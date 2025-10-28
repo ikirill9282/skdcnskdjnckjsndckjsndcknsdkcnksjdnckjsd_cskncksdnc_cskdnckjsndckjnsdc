@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 class StationMachines extends Page
 {
     use InteractsWithRecord;
+    use EnsuresStationManagementAccess;
 
     protected static string $resource = StationResource::class;
 
@@ -22,6 +23,8 @@ class StationMachines extends Page
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
+
+        $this->ensureStationManagementAccess();
         
         // Загружаем данные стиральных машин (можно из JSON-поля или связанной таблицы)
         $this->machines = $this->record->machines_data ?? [

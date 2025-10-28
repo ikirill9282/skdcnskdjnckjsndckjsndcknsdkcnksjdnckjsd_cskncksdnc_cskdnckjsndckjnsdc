@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 class StationParameters extends Page
 {
     use InteractsWithRecord;
+    use EnsuresStationManagementAccess;
 
     protected static string $resource = StationResource::class;
 
@@ -27,6 +28,8 @@ class StationParameters extends Page
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
+
+        $this->ensureStationManagementAccess();
         
         // Загружаем данные
         $this->activation_date = $this->record->activation_date ? $this->record->activation_date->format('Y-m-d') : '';

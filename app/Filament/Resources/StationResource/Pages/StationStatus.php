@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 class StationStatus extends Page
 {
     use InteractsWithRecord;
+    use EnsuresStationManagementAccess;
 
     protected static string $resource = StationResource::class;
 
@@ -26,6 +27,8 @@ class StationStatus extends Page
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
+
+        $this->ensureStationManagementAccess();
         
         // Загружаем текущие данные (можно из связанной модели или JSON-поля)
         $this->status = $this->record->current_status ?? '';

@@ -8,6 +8,7 @@ use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class StationStatistics extends Page
 {
@@ -25,7 +26,9 @@ class StationStatistics extends Page
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
-        
+
+        $this->ensureAuthorized();
+
         // По умолчанию текущий месяц
         $this->startDate = Carbon::now()->startOfMonth()->format('Y-m-d');
         $this->endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
@@ -41,11 +44,13 @@ class StationStatistics extends Page
 
     public function deleteStatistic($id)
     {
+        abort_unless($this->canManageStatistics(), 403);
+
         $statistic = Statistic::find($id);
-        
+
         if ($statistic && $statistic->station_id === $this->record->id) {
             $statistic->delete();
-            
+
             Notification::make()
                 ->title('Запись удалена')
                 ->success()
@@ -79,60 +84,74 @@ class StationStatistics extends Page
             'всего',
         ];
     }
-		public function getProgramNames()
-		{
-				// Загружаем 19 программ из базы данных для текущей станции
-				$programs = [];
-				
-				for ($i = 1; $i <= 19; $i++) {
-						$program = \App\Models\Program::where('station_id', $this->record->id)
-								->where('program_number', $i)
-								->first();
-						
-						$programs[] = $program ? $program->name : "Программа $i";
-				}
-				
-				return $programs;
-		}
+    public function getProgramNames(): array
+    {
+        $programs = [];
 
-		public function getChemNames()
-		{
-				// Загружаем названия моющих средств из JSON-поля detergents_data
-				$detergents = $this->record->detergents_data ?? [];
-				
-				$names = [];
-				for ($i = 0; $i < 8; $i++) {
-						if (isset($detergents[$i]['name'])) {
-								$names[] = $detergents[$i]['name'];
-						} else {
-								$names[] = "Средство " . ($i + 1);
-						}
-				}
-				
-				return $names;
-		}
-		public function getMachineNames()
-		{
-				// Загружаем названия стиральных машин из JSON-поля machines_data
-				$machines = $this->record->machines_data ?? [];
-				
-				$names = [];
-				foreach ($machines as $machine) {
-						if (isset($machine['name'])) {
-								$names[] = $machine['name'];
-						}
-				}
-				
-				// Если нет данных, заполняем дефолтными значениями
-				if (empty($names)) {
-						for ($i = 1; $i <= 8; $i++) {
-								$names[] = "Машина $i";
-						}
-				}
-				
-				return $names;
-		}
+        for ($i = 1; $i <= 19; $i++) {
+            $program = \App\Models\Program::where('station_id', $this->record->id)
+                ->where('program_number', $i)
+                ->first();
 
+            $programs[] = $program ? $program->name : "Программа $i";
+        }
 
+        return $programs;
+    }
 
+    public function getChemNames(): array
+    {
+        $detergents = $this->record->detergents_data ?? [];
+
+        $names = [];
+        for ($i = 0; $i < 8; $i++) {
+            if (isset($detergents[$i]['name'])) {
+                $names[] = $detergents[$i]['name'];
+            } else {
+                $names[] = 'Средство ' . ($i + 1);
+            }
+        }
+
+        return $names;
+    }
+
+    public function getMachineNames(): array
+    {
+        $machines = $this->record->machines_data ?? [];
+
+        $names = [];
+        foreach ($machines as $machine) {
+            if (isset($machine['name'])) {
+                $names[] = $machine['name'];
+            }
+        }
+
+        if (empty($names)) {
+            for ($i = 1; $i <= 8; $i++) {
+                $names[] = "Машина $i";
+            }
+        }
+
+        return $names;
+    }
+
+    public function canManageStatistics(): bool
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if (! StationResource::userHasStationAccess($this->record)) {
+            return false;
+        }
+
+        return $user->hasAnyRole(['super-admin', 'company-admin', 'manager']);
+    }
+
+    protected function ensureAuthorized(): void
+    {
+        abort_unless(StationResource::userHasStationAccess($this->record), 403);
+    }
 }

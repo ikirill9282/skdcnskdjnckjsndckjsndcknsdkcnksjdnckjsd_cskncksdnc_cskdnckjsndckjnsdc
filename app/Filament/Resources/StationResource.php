@@ -10,6 +10,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Resources\Pages\Page; 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class StationResource extends Resource
 {
@@ -22,6 +24,60 @@ class StationResource extends Resource
     protected static ?string $modelLabel = 'Станция';
     
     protected static ?string $pluralModelLabel = 'Станции';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->hasRole('super-admin')) {
+            return true;
+        }
+
+        if ($user->hasRole('company-admin')) {
+            return $user->companies()->exists();
+        }
+
+        if ($user->hasRole('manager')) {
+            return $user->stations()->exists();
+        }
+
+        if ($user->hasRole('client')) {
+            return $user->stations()->exists();
+        }
+
+        return false;
+    }
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->hasRole('super-admin')) {
+            return true;
+        }
+
+        if ($user->hasRole('company-admin')) {
+            return $user->companies()->exists();
+        }
+
+        if ($user->hasRole('manager')) {
+            return $user->stations()->exists();
+        }
+
+        if ($user->hasRole('client')) {
+            return $user->stations()->exists();
+        }
+
+        return false;
+    }
 
     public static function form(Form $form): Form
 		{
@@ -44,6 +100,7 @@ class StationResource extends Resource
 								Forms\Components\Select::make('company_id')
 										->relationship('company', 'name')
 										->required()
+										->disabled(fn (): bool => auth()->user()?->hasRole('manager') ?? false)
 										->label('Компания'),
 										
 								Forms\Components\Toggle::make('is_active')
@@ -91,32 +148,123 @@ class StationResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn ($record): bool => static::userHasStationAccess($record) && ! auth()->user()?->hasRole('client')),
+                Tables\Actions\Action::make('statistics')
+                    ->label('Статистика')
+                    ->icon('heroicon-o-chart-bar')
+                    ->url(fn ($record): string => static::getUrl('statistics', ['record' => $record]))
+                    ->visible(fn ($record): bool => static::userHasStationAccess($record)),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn (): bool => auth()->user()?->hasRole('super-admin') ?? false),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn (): bool => auth()->user()?->hasRole('super-admin') ?? false),
                 ]),
-            ])
-            ->modifyQueryUsing(function ($query) {
-                $user = auth()->user();
-                
-                // Для super-admin показываем все станции
-                if ($user->hasRole('super-admin')) {
-                    return $query;
-                }
-                
-                // Получаем компанию пользователя
-                $company = $user->companies()->first();
-                
-                if (!$company) {
-                    return $query->whereRaw('1 = 0'); // Пустой результат
-                }
-                
-                // Фильтруем по компании пользователя
-                return $query->where('company_id', $company->id);
-            });
+            ]);
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasAnyRole(['super-admin', 'company-admin']) ?? false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if (! static::userHasStationAccess($record)) {
+            return false;
+        }
+
+        return ! $user->hasRole('client');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()?->hasRole('super-admin') ?? false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()?->hasRole('super-admin') ?? false;
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->hasRole('super-admin')) {
+            return $query;
+        }
+
+        if ($user->hasRole('company-admin')) {
+            $companyIds = $user->companies()->pluck('companies.id')->all();
+
+            if (empty($companyIds)) {
+                return $query->whereRaw('1 = 0');
+            }
+
+            return $query->whereIn('company_id', $companyIds);
+        }
+
+        if ($user->hasRole('manager')) {
+            $stationIds = $user->stations()->pluck('stations.id')->all();
+
+            if (empty($stationIds)) {
+                return $query->whereRaw('1 = 0');
+            }
+
+            return $query->whereIn('id', $stationIds);
+        }
+
+        if ($user->hasRole('client')) {
+            $stationIds = $user->stations()->pluck('stations.id')->all();
+
+            if (empty($stationIds)) {
+                return $query->whereRaw('1 = 0');
+            }
+
+            return $query->whereIn('id', $stationIds);
+        }
+
+        return $query->whereRaw('1 = 0');
+    }
+
+    public static function userHasStationAccess(Model $record): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->hasRole('super-admin')) {
+            return true;
+        }
+
+        if ($user->hasRole('company-admin')) {
+            return $user->companies()
+                ->where('companies.id', $record->company_id)
+                ->exists();
+        }
+
+        if ($user->hasAnyRole(['manager', 'client'])) {
+            return $user->stations()->whereKey($record->getKey())->exists();
+        }
+
+        return false;
     }
 
     public static function getPages(): array
@@ -138,18 +286,30 @@ class StationResource extends Resource
 		}
 		public static function getRecordSubNavigation(Page $page): array
 		{
-				return $page->generateNavigationItems([
-						Pages\EditStation::class,
-						Pages\StationStatus::class,
-						Pages\StationManual::class,
-						Pages\StationMachines::class,
-						Pages\StationDetergents::class,
-						Pages\StationAutoPrograms::class,
-						Pages\StationManualPrograms::class,
-						Pages\StationStatistics::class,
-						Pages\StationLogs::class,
-						Pages\StationParameters::class,
-				]);
+        $user = auth()->user();
+
+        if (! $user) {
+            return [];
+        }
+
+        if ($user->hasRole('client')) {
+            return $page->generateNavigationItems([
+                Pages\StationStatistics::class,
+            ]);
+        }
+
+        return $page->generateNavigationItems([
+            Pages\EditStation::class,
+            Pages\StationStatus::class,
+            Pages\StationManual::class,
+            Pages\StationMachines::class,
+            Pages\StationDetergents::class,
+            Pages\StationAutoPrograms::class,
+            Pages\StationManualPrograms::class,
+            Pages\StationStatistics::class,
+            Pages\StationLogs::class,
+            Pages\StationParameters::class,
+        ]);
 		}
 
 

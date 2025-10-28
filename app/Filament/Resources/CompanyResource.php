@@ -10,6 +10,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class CompanyResource extends Resource
 {
@@ -19,15 +21,34 @@ class CompanyResource extends Resource
     
     protected static ?string $navigationLabel = 'Компании';
 
-    // Доступ только для super-admin
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()->hasRole('super-admin');
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->hasRole('super-admin')) {
+            return true;
+        }
+
+        if ($user->hasRole('company-admin')) {
+            return $user->companies()->exists();
+        }
+
+        return false;
     }
 
     public static function canAccess(): bool
     {
-        return auth()->user()->hasRole(['super-admin', 'admin', 'company-admin', 'manager', 'client']);
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        return $user->hasAnyRole(['super-admin', 'company-admin']);
     }
 
     public static function form(Form $form): Form
@@ -84,17 +105,54 @@ class CompanyResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn (): bool => auth()->user()?->hasRole('super-admin') ?? false),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn (): bool => auth()->user()?->hasRole('super-admin') ?? false),
                 ]),
             ])
             ->defaultSort('name', 'asc');
     }
 
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->hasRole('super-admin') ?? false;
+    }
 
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()?->hasRole('super-admin') ?? false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()?->hasRole('super-admin') ?? false;
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->hasRole('company-admin')) {
+            $companyIds = $user->companies()->pluck('companies.id')->toArray();
+
+            if (empty($companyIds)) {
+                return $query->whereRaw('1 = 0');
+            }
+
+            $query->whereIn('id', $companyIds);
+        }
+
+        return $query;
+    }
 
     public static function getPages(): array
     {

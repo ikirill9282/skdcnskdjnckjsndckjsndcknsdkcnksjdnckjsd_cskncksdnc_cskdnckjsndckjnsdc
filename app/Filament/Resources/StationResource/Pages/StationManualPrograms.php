@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 class StationManualPrograms extends Page
 {
     use InteractsWithRecord;
+    use EnsuresStationManagementAccess;
 
     protected static string $resource = StationResource::class;
 
@@ -29,6 +30,8 @@ class StationManualPrograms extends Page
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
+
+        $this->ensureStationManagementAccess();
         
         // Инициализируем программы если их нет
         $this->initializePrograms();

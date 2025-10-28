@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 class StationLogs extends Page
 {
     use InteractsWithRecord;
+    use EnsuresStationManagementAccess;
 
     protected static string $resource = StationResource::class;
 
@@ -21,6 +22,8 @@ class StationLogs extends Page
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
+
+        $this->ensureStationManagementAccess();
     }
 
     public function getLogs()
@@ -32,6 +35,8 @@ class StationLogs extends Page
 
     public function deleteLog($id)
     {
+        $this->ensureStationManagementAccess();
+
         $log = StationLog::find($id);
         
         if ($log && $log->station_id === $this->record->id) {
