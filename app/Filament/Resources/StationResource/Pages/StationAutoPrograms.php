@@ -4,6 +4,7 @@ namespace App\Filament\Resources\StationResource\Pages;
 
 use App\Filament\Resources\StationResource;
 use App\Models\Program;
+use App\Models\StationSettingValue;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
@@ -19,73 +20,70 @@ class StationAutoPrograms extends Page
 
     protected static ?string $title = 'Программы (авто)';
 
-    public $programs = [];
-    public $selectedProgram = null;
-    public $programName = '';
-    public $activeMachines = [];
-    public $scenarios = [];
-    public $loadPercentage = 100;
+    public array $programs = [];
+    public ?int $selectedProgram = null;
+    public string $programName = '';
+    public array $activeMachines = [];
+    public array $scenarios = [];
+    public $loadPercentage = 0;
+    public array $programOptions = [];
+    protected array $programNameCache = [];
 
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
 
         $this->ensureStationManagementAccess();
-        
-        // Инициализируем программы если их нет
         $this->initializePrograms();
-        
-        $this->programs = $this->record->auto_programs_data ?? $this->getDefaultPrograms();
-        
-        if (!empty($this->programs)) {
-            $this->selectedProgram = array_key_first($this->programs);
-            $this->loadProgram($this->selectedProgram);
-        }
+
+        $this->record->load('settingValues');
+
+        $this->programs = $this->buildProgramsFromSettings();
+        $this->refreshProgramOptions();
+
+        $this->selectedProgram = array_key_first($this->programOptions) ?? 1;
+        $this->loadProgram($this->selectedProgram);
     }
 
-    public function updatedSelectedProgram($value)
+    public function updatedSelectedProgram($value): void
     {
-        $this->loadProgram($value);
+        $this->loadProgram((int) $value);
     }
 
-    public function loadProgram($programId)
+    public function loadProgram(int $programId): void
     {
-        if (isset($this->programs[$programId])) {
-            $program = $this->programs[$programId];
-            
-            // Загружаем название из таблицы programs
-            $programModel = Program::where('station_id', $this->record->id)
-                ->where('program_number', $programId)
-                ->first();
-                
-            $this->programName = $programModel ? $programModel->name : $program['name'];
-            $this->activeMachines = $program['active_machines'];
-            $this->scenarios = $program['scenarios'];
-            $this->loadPercentage = $program['load_percentage'];
-        }
+        $data = $this->getProgramData($programId);
+
+        $this->selectedProgram = $programId;
+        $this->programs[$programId] = $data;
+        $this->programName = $data['name'];
+        $this->activeMachines = $data['active_machines'];
+        $this->scenarios = $data['scenarios'];
+        $this->loadPercentage = $data['load_percentage'];
     }
 
     public function save()
     {
-        if ($this->selectedProgram !== null) {
-            $this->programs[$this->selectedProgram] = [
-                'name' => $this->programName,
-                'active_machines' => $this->activeMachines,
-                'scenarios' => $this->scenarios,
-                'load_percentage' => $this->loadPercentage,
-            ];
-        }
+        $programNumber = $this->selectedProgram ?? 1;
 
-        // Сохраняем название в таблицу programs
+        $this->syncProgramSettings($programNumber);
+
         Program::updateOrCreate(
             [
                 'station_id' => $this->record->id,
-                'program_number' => $this->selectedProgram,
+                'program_number' => $programNumber,
             ],
             [
                 'name' => $this->programName,
             ]
         );
+
+        $this->programNameCache = [];
+
+        $this->record->load('settingValues');
+        $this->programs = $this->buildProgramsFromSettings();
+        $this->refreshProgramOptions();
+        $this->loadProgram($programNumber);
 
         $this->record->update([
             'auto_programs_data' => $this->programs,
@@ -113,25 +111,188 @@ class StationAutoPrograms extends Page
         }
     }
 
-    public function getProgramOptions()
+    public function getProgramOptions(): array
     {
-        return Program::where('station_id', $this->record->id)
-            ->orderBy('program_number')
-            ->pluck('name', 'program_number')
-            ->toArray();
+        return $this->programOptions;
     }
 
-    private function getDefaultPrograms()
+    private function buildProgramsFromSettings(): array
     {
-        $defaults = [];
+        $programs = [];
+
         for ($i = 1; $i <= 19; $i++) {
-            $defaults[(string)$i] = [
-                'name' => "Программа $i",
-                'active_machines' => [false, false, false, false, false, false],
-                'scenarios' => array_fill(0, 8, array_fill(0, 5, null)),
-                'load_percentage' => 100,
-            ];
+            $programs[$i] = $this->getProgramData($i);
         }
-        return $defaults;
+
+        return $programs;
+    }
+
+    private function getProgramData(int $number): array
+    {
+        $defaultName = "Программа {$number}";
+        $fallbackName = $this->fallbackProgramName($number, $defaultName);
+        $name = (string) $this->getSettingValue($number * 10 + 109, 1, $fallbackName);
+
+        $active = [];
+        for ($i = 1; $i <= 6; $i++) {
+            $value = $this->getSettingValue($number * 10 + 104, $i, '0');
+            $active[] = $this->booleanValue($value);
+        }
+
+        $base = $this->programBase($number);
+        $scenarios = [];
+
+        for ($row = 1; $row <= 8; $row++) {
+            $rowData = [];
+
+            for ($col = 1; $col <= 5; $col++) {
+                $block = $base + $col;
+                $value = $this->getSettingValue($block, $row, '');
+                $rowData[] = $this->numericOrEmpty($value);
+            }
+
+            $scenarios[] = $rowData;
+        }
+
+        $loadValue = $this->getSettingValue($number * 10 + 104, 9, '');
+        $loadPercentage = is_numeric($loadValue) ? 0 + $loadValue : 0;
+
+        return [
+            'name' => $name !== '' ? $name : $fallbackName,
+            'active_machines' => $active,
+            'scenarios' => $scenarios,
+            'load_percentage' => $loadPercentage,
+        ];
+    }
+
+    private function fallbackProgramName(int $number, string $default): string
+    {
+        if ($this->programNameCache === []) {
+            $this->programNameCache = Program::where('station_id', $this->record->id)
+                ->pluck('name', 'program_number')
+                ->toArray();
+        }
+
+        return $this->programNameCache[$number] ?? $default;
+    }
+
+    private function refreshProgramOptions(): void
+    {
+        $options = [];
+
+        for ($i = 1; $i <= 19; $i++) {
+            $options[$i] = $this->programs[$i]['name'] ?? "Программа {$i}";
+        }
+
+        $this->programOptions = $options;
+    }
+
+    private function syncProgramSettings(int $programNumber): void
+    {
+        $activeBlock = $programNumber * 10 + 104;
+
+        for ($offset = 0; $offset < 6; $offset++) {
+            $active = $this->activeMachines[$offset] ?? false;
+            StationSettingValue::updateOrCreate(
+                [
+                    'station_id' => $this->record->id,
+                    'block_number' => $activeBlock,
+                    'setting_index' => $offset + 1,
+                ],
+                [
+                    'value' => $this->booleanValue($active) ? '1' : '0',
+                ],
+            );
+        }
+
+        StationSettingValue::updateOrCreate(
+            [
+                'station_id' => $this->record->id,
+                'block_number' => $activeBlock,
+                'setting_index' => 9,
+            ],
+            [
+                'value' => $this->stringValue($this->loadPercentage),
+            ],
+        );
+
+        StationSettingValue::updateOrCreate(
+            [
+                'station_id' => $this->record->id,
+                'block_number' => $programNumber * 10 + 109,
+                'setting_index' => 1,
+            ],
+            [
+                'value' => (string) $this->programName,
+            ],
+        );
+
+        $base = $this->programBase($programNumber);
+
+        for ($col = 1; $col <= 5; $col++) {
+            $block = $base + $col;
+
+            for ($row = 1; $row <= 8; $row++) {
+                $value = $this->scenarios[$row - 1][$col - 1] ?? '';
+
+                StationSettingValue::updateOrCreate(
+                    [
+                        'station_id' => $this->record->id,
+                        'block_number' => $block,
+                        'setting_index' => $row,
+                    ],
+                    [
+                        'value' => $this->stringValue($value),
+                    ],
+                );
+            }
+        }
+    }
+
+    private function getSettingValue(int $block, int $index, mixed $default = null): mixed
+    {
+        $value = $this->record->settingValues
+            ->first(fn ($item) => (int) $item->block_number === $block && (int) $item->setting_index === $index)
+            ?->value;
+
+        return $value ?? $default;
+    }
+
+    private function programBase(int $programNumber): int
+    {
+        $x = $programNumber > 10 ? 95 : 0;
+
+        return $programNumber * 10 - $x;
+    }
+
+    private function numericOrEmpty(mixed $value): mixed
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        return is_numeric($value) ? 0 + $value : $value;
+    }
+
+    private function booleanValue(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if ($value === null || $value === '') {
+            return false;
+        }
+
+        return in_array(strtolower((string) $value), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    private function stringValue(mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        return (string) $value;
     }
 }
