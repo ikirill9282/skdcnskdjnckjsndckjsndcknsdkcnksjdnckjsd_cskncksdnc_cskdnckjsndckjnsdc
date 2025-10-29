@@ -21,17 +21,24 @@ class StationManual extends Page
     public $detergent;
     public $ml;
     public $washing_machine;
+    public $process_completion;
+
+    protected array $manualSettings = [];
 
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
 
         $this->ensureStationManagementAccess();
-        
-        // Инициализация пустых значений
-        $this->detergent = '';
-        $this->ml = '';
-        $this->washing_machine = '';
+
+        $this->loadManualSettings();
+
+        $this->detergent = (string) $this->manualValue(1, '');
+        $mlValue = $this->manualValue(2, '');
+        $this->ml = is_numeric($mlValue) ? 0 + $mlValue : $mlValue;
+        $this->washing_machine = (string) $this->manualValue(3, '');
+        $processValue = $this->manualValueFromBlock(306, 5, '');
+        $this->process_completion = is_numeric($processValue) ? 0 + $processValue : $processValue;
     }
 
     public function submit()
@@ -53,5 +60,30 @@ class StationManual extends Page
 
         // Очищаем форму после успешной подачи
         $this->reset(['detergent', 'ml', 'washing_machine']);
+    }
+
+    protected function loadManualSettings(): void
+    {
+        $this->record->loadMissing('settingValues');
+
+        $this->manualSettings = $this->record->settingValues
+            ->where('block_number', 305)
+            ->sortBy('setting_index')
+            ->mapWithKeys(fn ($item) => [$item->setting_index => $item->value])
+            ->toArray();
+    }
+
+    protected function manualValue(int $index, mixed $default = null): mixed
+    {
+        return $this->manualSettings[$index] ?? $default;
+    }
+
+    protected function manualValueFromBlock(int $block, int $index, mixed $default = null): mixed
+    {
+        $value = $this->record->settingValues
+            ->first(fn ($item) => (int) $item->block_number === $block && (int) $item->setting_index === $index)
+            ?->value;
+
+        return $value ?? $default;
     }
 }

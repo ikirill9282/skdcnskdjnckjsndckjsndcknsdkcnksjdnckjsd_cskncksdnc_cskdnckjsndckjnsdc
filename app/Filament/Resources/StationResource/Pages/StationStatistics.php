@@ -127,7 +127,7 @@ class StationStatistics extends Page
         }
 
         if (empty($names)) {
-            for ($i = 1; $i <= 8; $i++) {
+            for ($i = 1; $i <= 6; $i++) {
                 $names[] = "Машина $i";
             }
         }

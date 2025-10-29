@@ -61,5 +61,16 @@
                 </div>
             </form>
         </div>
+
+        {{-- Текущее состояние процесса --}}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 class="text-lg font-bold mb-2">Процент выполнения</h2>
+            <p class="text-3xl font-semibold">
+                {{ $process_completion !== '' ? $process_completion : '—' }}
+                @if($process_completion !== '')
+                    <span class="text-base font-normal text-gray-500">%</span>
+                @endif
+            </p>
+        </div>
     </div>
 </x-filament-panels::page>
