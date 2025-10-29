@@ -7,7 +7,7 @@
                 <div>
                     <label class="block text-sm font-medium mb-2">Программа №</label>
                     <select wire:model.live="selectedProgram" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900">
-                        @foreach($this->getProgramOptions() as $id => $name)
+                        @foreach($programOptions as $id => $name)
                             <option value="{{ $id }}">{{ $id }} - {{ $name }}</option>
                         @endforeach
                     </select>
