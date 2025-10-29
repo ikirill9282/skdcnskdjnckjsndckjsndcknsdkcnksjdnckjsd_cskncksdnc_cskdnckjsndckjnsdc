@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\StationResource\Pages;
 
 use App\Filament\Resources\StationResource;
+use App\Models\StationSettingValue;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
@@ -25,28 +26,137 @@ class StationMachines extends Page
         $this->record = $this->resolveRecord($record);
 
         $this->ensureStationManagementAccess();
-        
-        // Загружаем данные стиральных машин (можно из JSON-поля или связанной таблицы)
-        $this->machines = $this->record->machines_data ?? [
-            ['name' => 'Electr 40', 'loading' => 40, 'trace' => 10, 'active' => true],
-            ['name' => 'Electr 40', 'loading' => 40, 'trace' => 8, 'active' => true],
-            ['name' => 'Electr 40', 'loading' => 40, 'trace' => 6, 'active' => true],
-            ['name' => 'Electr 40', 'loading' => 40, 'trace' => 4, 'active' => true],
-            ['name' => 'Electr 10', 'loading' => 10, 'trace' => 12, 'active' => true],
-            ['name' => 'Electr 10', 'loading' => 10, 'trace' => 14, 'active' => true],
-        ];
+
+        $this->loadMachinesFromSettings();
     }
 
     public function save()
     {
-        // Сохраняем данные машин
-        $this->record->update([
-            'machines_data' => $this->machines,
-        ]);
+        $this->syncMachineSettings();
 
         Notification::make()
             ->title('Сохранено')
             ->success()
             ->send();
+
+        $this->loadMachinesFromSettings();
+    }
+
+    protected function loadMachinesFromSettings(): void
+    {
+        $this->record->load('settingValues');
+
+        $names = $this->collectBlockValues(311);
+        $loadings = $this->collectBlockValues(322);
+        $traces = $this->collectBlockValues(323);
+        $actives = $this->collectBlockValues(321);
+
+        $machines = [];
+
+        for ($index = 1; $index <= 6; $index++) {
+            $machines[] = [
+                'name' => (string) ($names[$index] ?? ''),
+                'loading' => $this->numericOrEmpty($loadings[$index] ?? ''),
+                'trace' => $this->numericOrEmpty($traces[$index] ?? ''),
+                'active' => $this->booleanValue($actives[$index] ?? null),
+            ];
+        }
+
+        $this->machines = $machines;
+    }
+
+    protected function collectBlockValues(int $block): array
+    {
+        return $this->record->settingValues
+            ->where('block_number', $block)
+            ->sortBy('setting_index')
+            ->mapWithKeys(fn ($item) => [$item->setting_index => $item->value])
+            ->toArray();
+    }
+
+    protected function numericOrEmpty(mixed $value): mixed
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        return is_numeric($value) ? 0 + $value : $value;
+    }
+
+    protected function booleanValue(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if ($value === null || $value === '') {
+            return false;
+        }
+
+        return in_array(strtolower((string) $value), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    protected function syncMachineSettings(): void
+    {
+        foreach ($this->machines as $offset => $machine) {
+            $index = $offset + 1;
+
+            StationSettingValue::updateOrCreate(
+                [
+                    'station_id' => $this->record->id,
+                    'block_number' => 311,
+                    'setting_index' => $index,
+                ],
+                [
+                    'value' => (string) ($machine['name'] ?? ''),
+                ],
+            );
+
+            StationSettingValue::updateOrCreate(
+                [
+                    'station_id' => $this->record->id,
+                    'block_number' => 322,
+                    'setting_index' => $index,
+                ],
+                [
+                    'value' => $this->stringValue($machine['loading'] ?? ''),
+                ],
+            );
+
+            StationSettingValue::updateOrCreate(
+                [
+                    'station_id' => $this->record->id,
+                    'block_number' => 323,
+                    'setting_index' => $index,
+                ],
+                [
+                    'value' => $this->stringValue($machine['trace'] ?? ''),
+                ],
+            );
+
+            StationSettingValue::updateOrCreate(
+                [
+                    'station_id' => $this->record->id,
+                    'block_number' => 321,
+                    'setting_index' => $index,
+                ],
+                [
+                    'value' => $this->booleanValue($machine['active'] ?? false) ? '1' : '0',
+                ],
+            );
+        }
+
+        $this->record->update([
+            'machines_data' => $this->machines,
+        ]);
+    }
+
+    protected function stringValue(mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        return (string) $value;
     }
 }
