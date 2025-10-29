@@ -46,7 +46,11 @@ class StationMachines extends Page
     {
         $this->record->load('settingValues');
 
-        $names = $this->collectBlockValues(311);
+        $names = [];
+        for ($index = 1; $index <= 6; $index++) {
+            $block = 310 + $index; // 311-316
+            $names[$index] = $this->valueFromSettings($block, 3, '');
+        }
         $loadings = $this->collectBlockValues(322);
         $traces = $this->collectBlockValues(323);
         $actives = $this->collectBlockValues(321);
@@ -72,6 +76,15 @@ class StationMachines extends Page
             ->sortBy('setting_index')
             ->mapWithKeys(fn ($item) => [$item->setting_index => $item->value])
             ->toArray();
+    }
+
+    protected function valueFromSettings(int $block, int $index, mixed $default = null): mixed
+    {
+        $value = $this->record->settingValues
+            ->first(fn ($item) => (int) $item->block_number === $block && (int) $item->setting_index === $index)
+            ?->value;
+
+        return $value ?? $default;
     }
 
     protected function numericOrEmpty(mixed $value): mixed
@@ -100,12 +113,13 @@ class StationMachines extends Page
     {
         foreach ($this->machines as $offset => $machine) {
             $index = $offset + 1;
+            $nameBlock = 310 + $index;
 
             StationSettingValue::updateOrCreate(
                 [
                     'station_id' => $this->record->id,
-                    'block_number' => 311,
-                    'setting_index' => $index,
+                    'block_number' => $nameBlock,
+                    'setting_index' => 3,
                 ],
                 [
                     'value' => (string) ($machine['name'] ?? ''),
