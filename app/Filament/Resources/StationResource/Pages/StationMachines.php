@@ -49,7 +49,7 @@ class StationMachines extends Page
         $names = [];
         for ($index = 1; $index <= 6; $index++) {
             $block = 310 + $index; // 311-316
-            $names[$index] = $this->valueFromSettings($block, 2, '');
+            $names[$index] = $this->valueFromSettings($block, 1, '');
         }
         $loadings = $this->collectBlockValues(322);
         $traces = $this->collectBlockValues(323);
