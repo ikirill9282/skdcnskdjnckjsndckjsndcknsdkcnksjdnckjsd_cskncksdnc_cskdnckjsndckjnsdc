@@ -8,7 +8,7 @@
                             <th class="text-left p-2 text-sm font-medium">#</th>
                             <th class="text-left p-2 text-sm font-medium">Имя средства</th>
                             <th class="text-left p-2 text-sm font-medium">тара</th>
-                            <th class="text-left p-2 text-sm font-medium">откат</th>
+                            <th class="text-left p-2 text-sm font-medium">плотность</th>
                             <th class="text-left p-2 text-sm font-medium">калибровка</th>
                             <th class="text-center p-2 text-sm font-medium">Актив</th>
                         </tr>
@@ -36,11 +36,12 @@
                                     >
                                 </td>
 
-                                {{-- Откат --}}
+                                {{-- Плотность --}}
                                 <td class="p-2">
                                     <input 
                                         type="number" 
-                                        wire:model="detergents.{{ $index }}.rollback"
+                                        step="0.001"
+                                        wire:model="detergents.{{ $index }}.density"
                                         class="w-full px-2 py-1 border rounded dark:bg-gray-900 dark:border-gray-700"
                                     >
                                 </td>
