@@ -46,8 +46,8 @@ class Admin9282PanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
+								UserStationsWidget::class,
                 Widgets\AccountWidget::class,
-                UserStationsWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
