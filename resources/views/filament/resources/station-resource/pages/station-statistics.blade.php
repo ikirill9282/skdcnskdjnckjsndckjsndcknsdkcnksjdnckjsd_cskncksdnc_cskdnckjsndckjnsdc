@@ -26,7 +26,7 @@
         {{-- Таблица статистики --}}
         <style>
             .statistics-table thead tr:first-child th {
-                height: 9rem;
+                height: 13rem;
                 vertical-align: bottom;
             }
 
@@ -37,9 +37,9 @@
             .statistics-table .rotate-header span {
                 display: inline-block;
                 transform: rotate(-90deg);
-                transform-origin: bottom left;
                 white-space: nowrap;
                 margin: 0.5rem;
+								width: 20px;
             }
         </style>
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
