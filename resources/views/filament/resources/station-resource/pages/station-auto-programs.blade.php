@@ -90,7 +90,7 @@
             <div>
                 <button 
                     type="submit" 
-                    class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg"
+                    class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg bg-primary-600"
                 >
                     сохранить
                 </button>

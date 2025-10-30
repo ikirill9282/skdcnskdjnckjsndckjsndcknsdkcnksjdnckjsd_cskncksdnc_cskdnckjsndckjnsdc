@@ -70,9 +70,7 @@
                 @error('process_completion') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                 
                 {{-- Прогресс-бар --}}
-                <div class="mt-2 w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
-                    <div class="bg-blue-600 h-4 rounded-full transition-all" style="width: {{ $process_completion }}%"></div>
-                </div>
+                
             </div>
         </div>
 
@@ -80,7 +78,7 @@
         <div class="flex justify-end">
             <button 
                 type="submit" 
-                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg bg-primary-600"
             >
                 Сохранить
             </button>
