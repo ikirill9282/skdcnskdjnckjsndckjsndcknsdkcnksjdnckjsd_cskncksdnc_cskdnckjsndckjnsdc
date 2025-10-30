@@ -180,9 +180,7 @@ class StationSettingsApiController extends Controller
             ], 422);
         }
 
-        $station = Station::with('settingValues')
-            ->where('code', (string) $stationIdentifier)
-            ->first();
+        $station = Station::where('code', (string) $stationIdentifier)->first();
 
         if (! $station) {
             return response()->json([
@@ -190,6 +188,49 @@ class StationSettingsApiController extends Controller
                 'message' => 'Station not found.',
             ], 404);
         }
+
+        $pendingUpdate = $station->settingBlockUpdates()
+            ->whereNull('sent_at')
+            ->orderBy('updated_at')
+            ->first();
+
+        if ($pendingUpdate) {
+            $blockNumber = (int) $pendingUpdate->block_number;
+
+            $blockValues = StationSettingValue::query()
+                ->where('station_id', $station->id)
+                ->where('block_number', $blockNumber)
+                ->orderBy('setting_index')
+                ->pluck('value', 'setting_index')
+                ->toArray();
+
+            SettingBlockChangeTracker::markBlocksSent($station->id, [$blockNumber]);
+
+            $hasMore = $station->settingBlockUpdates()
+                ->whereNull('sent_at')
+                ->exists();
+
+            return response()->json([
+                'status' => 'ok',
+                'station' => [
+                    'code' => $station->code,
+                ],
+                'settings' => [
+                    'pending_setting_blocks' => [
+                        $blockNumber => $blockValues,
+                    ],
+                    'pending_setting_metadata' => [
+                        $blockNumber => [
+                            'changed_by' => $pendingUpdate->changed_by,
+                            'updated_at' => $pendingUpdate->updated_at?->toIso8601String(),
+                        ],
+                    ],
+                    'has_more_pending_blocks' => $hasMore,
+                ],
+            ]);
+        }
+
+        $station->load('settingValues');
 
         $settingBlocks = $station->settingValues
             ->sortBy(function ($item) {
@@ -205,26 +246,6 @@ class StationSettingsApiController extends Controller
                     ->toArray();
             })
             ->toArray();
-
-        $pendingUpdates = $station->settingBlockUpdates()
-            ->whereNull('sent_at')
-            ->get(['block_number', 'changed_by', 'updated_at']);
-
-        $pendingSettingBlocks = [];
-        $pendingMetadata = [];
-
-        foreach ($pendingUpdates as $update) {
-            $blockNumber = (int) $update->block_number;
-            $pendingSettingBlocks[$blockNumber] = $settingBlocks[$blockNumber] ?? [];
-            $pendingMetadata[$blockNumber] = [
-                'changed_by' => $update->changed_by,
-                'updated_at' => $update->updated_at?->toIso8601String(),
-            ];
-        }
-
-        if ($pendingSettingBlocks !== []) {
-            SettingBlockChangeTracker::markBlocksSent($station->id, array_keys($pendingSettingBlocks));
-        }
 
         return response()->json([
             'status' => 'ok',
@@ -250,8 +271,9 @@ class StationSettingsApiController extends Controller
                 'warnings' => $station->warnings,
                 'errors' => $station->errors,
                 'setting_blocks' => $settingBlocks,
-                'pending_setting_blocks' => $pendingSettingBlocks,
-                'pending_setting_metadata' => $pendingMetadata,
+                'pending_setting_blocks' => [],
+                'pending_setting_metadata' => [],
+                'has_more_pending_blocks' => false,
             ],
         ]);
     }
