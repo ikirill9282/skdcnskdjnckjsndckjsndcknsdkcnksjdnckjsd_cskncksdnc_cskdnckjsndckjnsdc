@@ -17,11 +17,9 @@
                     <th class="border dark:border-gray-700 p-2 text-center">№</th>
                     <th class="border dark:border-gray-700 p-2 text-center">№</th>
                     <th class="border dark:border-gray-700 p-2 text-center">кг</th>
-                    <th class="border dark:border-gray-700 p-2 text-center">сигн 1</th>
                     @foreach(range(1, 6) as $index)
                         <th class="border dark:border-gray-700 p-2 text-center">{{ $index }}</th>
                     @endforeach
-                    <th class="border dark:border-gray-700 p-2 text-center">сигн 2</th>
                     @foreach(range(1, 8) as $index)
                         <th class="border dark:border-gray-700 p-2 text-center">{{ $index }}</th>
                     @endforeach
