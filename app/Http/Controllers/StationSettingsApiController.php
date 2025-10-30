@@ -230,23 +230,6 @@ class StationSettingsApiController extends Controller
             ]);
         }
 
-        $station->load('settingValues');
-
-        $settingBlocks = $station->settingValues
-            ->sortBy(function ($item) {
-                return sprintf('%05d-%02d', $item->block_number, $item->setting_index);
-            })
-            ->groupBy('block_number')
-            ->map(function ($group) {
-                return $group
-                    ->sortBy('setting_index')
-                    ->mapWithKeys(function ($item) {
-                        return [$item->setting_index => $item->value];
-                    })
-                    ->toArray();
-            })
-            ->toArray();
-
         return response()->json([
             'status' => 'ok',
             'station' => [
@@ -255,22 +238,6 @@ class StationSettingsApiController extends Controller
                 'region' => $station->region,
             ],
             'settings' => [
-                'machines' => $station->machines_data ?? [],
-                'detergents' => $station->detergents_data ?? [],
-                'auto_programs' => $station->auto_programs_data ?? [],
-                'manual_programs' => $station->manual_programs_data ?? [],
-                'program_names' => $station->program_names ?? [],
-                'current_status' => $station->current_status,
-                'current_detergent' => $station->current_detergent,
-                'current_volume' => $station->current_volume,
-                'current_washing_machine' => $station->current_washing_machine,
-                'current_process_completion' => $station->current_process_completion,
-                'activation_date' => optional($station->activation_date)->toDateString(),
-                'service_date' => optional($station->service_date)->toDateString(),
-                'days_worked' => $station->days_worked,
-                'warnings' => $station->warnings,
-                'errors' => $station->errors,
-                'setting_blocks' => $settingBlocks,
                 'pending_setting_blocks' => [],
                 'pending_setting_metadata' => [],
                 'has_more_pending_blocks' => false,

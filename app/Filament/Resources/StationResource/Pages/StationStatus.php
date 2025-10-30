@@ -146,13 +146,15 @@ class StationStatus extends Page
             }
         }
 
-        if ($changedBlocks !== []) {
-            SettingBlockChangeTracker::markBlocksChanged(
-                $stationId,
-                array_keys($changedBlocks),
-                'status'
-            );
-        }
+        $blockNumbers = $changedBlocks !== []
+            ? array_keys($changedBlocks)
+            : [306];
+
+        SettingBlockChangeTracker::markBlocksChanged(
+            $stationId,
+            $blockNumbers,
+            'status'
+        );
     }
 
     protected function coerceNumeric(mixed $value, float $default = 0): float
