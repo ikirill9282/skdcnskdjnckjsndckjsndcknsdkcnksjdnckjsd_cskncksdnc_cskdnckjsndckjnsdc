@@ -5,7 +5,9 @@
                 <tr>
                     <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">время</th>
                     <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">событие</th>
-                    <th class="border dark:border-gray-700 p-2 text-center" colspan="3">стир / прогр / бельё</th>
+                    <th class="border dark:border-gray-700 p-2 text-center" colspan="3">стир</th>
+                    <th class="border dark:border-gray-700 p-2 text-center" colspan="3">прогр</th>
+                    <th class="border dark:border-gray-700 p-2 text-center" colspan="3">бельё</th>
                     <th class="border dark:border-gray-700 p-2 text-center" colspan="8">стир. машины <br><span class="text-xs">(32 = 3 программа, 2 сигнал)</span></th>
                     <th class="border dark:border-gray-700 p-2 text-center" colspan="8">моющие средства</th>
                     <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">комментарий</th>
