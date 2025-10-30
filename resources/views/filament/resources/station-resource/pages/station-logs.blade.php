@@ -17,7 +17,7 @@
                     <th class="border dark:border-gray-700 p-2 text-center">№</th>
                     <th class="border dark:border-gray-700 p-2 text-center">№</th>
                     <th class="border dark:border-gray-700 p-2 text-center">кг</th>
-                    @foreach(range(2, 6) as $index)
+                    @foreach(range(1, 6) as $index)
                         <th class="border dark:border-gray-700 p-2 text-center">{{ $index }}</th>
                     @endforeach
                     @foreach(range(1, 8) as $index)
@@ -35,7 +35,6 @@
                         <td class="border dark:border-gray-700 p-2 text-center">{{ $log->washing_machine_number ?? 0 }}</td>
                         <td class="border dark:border-gray-700 p-2 text-center">{{ $log->program_number ?? 0 }}</td>
                         <td class="border dark:border-gray-700 p-2 text-center">{{ $log->white_loading ?? 0 }}</td>
-                        <td class="border dark:border-gray-700 p-2 text-center">{{ $log->signal_1 ?? 0 }}</td>
                         
                         @php
                             $machineSignals = $log->machine_signals ?? array_fill(0, 6, 0);
@@ -43,8 +42,6 @@
                         @foreach($machineSignals as $signal)
                             <td class="border dark:border-gray-700 p-2 text-center">{{ $signal }}</td>
                         @endforeach
-                        
-                        <td class="border dark:border-gray-700 p-2 text-center">{{ $log->signal_2 ?? 0 }}</td>
                         
                         @php
                             $detergentSignals = $log->detergent_signals ?? array_fill(0, 8, 0);
