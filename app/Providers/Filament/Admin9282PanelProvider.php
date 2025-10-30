@@ -46,9 +46,7 @@ class Admin9282PanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-								UserStationsWidget::class,
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                UserStationsWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
