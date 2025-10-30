@@ -8,7 +8,7 @@
                     <th class="border dark:border-gray-700 p-2 text-center" colspan="1">стир</th>
                     <th class="border dark:border-gray-700 p-2 text-center" colspan="1">прогр</th>
                     <th class="border dark:border-gray-700 p-2 text-center" colspan="1">бельё</th>
-                    <th class="border dark:border-gray-700 p-2 text-center" colspan="8">стир. машины <br><span class="text-xs">(32 = 3 программа, 2 сигнал)</span></th>
+                    <th class="border dark:border-gray-700 p-2 text-center" colspan="6">стир. машины <br><span class="text-xs">(32 = 3 программа, 2 сигнал)</span></th>
                     <th class="border dark:border-gray-700 p-2 text-center" colspan="8">моющие средства</th>
                     <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">комментарий</th>
                     <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">действия</th>
