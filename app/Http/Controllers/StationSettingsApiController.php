@@ -206,42 +206,24 @@ class StationSettingsApiController extends Controller
 
             SettingBlockChangeTracker::markBlocksSent($station->id, [$blockNumber]);
 
-            $hasMore = $station->settingBlockUpdates()
-                ->whereNull('sent_at')
-                ->exists();
+            $highestIndex = ! empty($blockValues) ? max(array_keys($blockValues)) : 0;
+            $values = [];
 
-            return response()->json([
-                'status' => 'ok',
-                'station' => [
-                    'code' => $station->code,
-                ],
-                'settings' => [
-                    'pending_setting_blocks' => [
-                        $blockNumber => $blockValues,
-                    ],
-                    'pending_setting_metadata' => [
-                        $blockNumber => [
-                            'changed_by' => $pendingUpdate->changed_by,
-                            'updated_at' => $pendingUpdate->updated_at?->toIso8601String(),
-                        ],
-                    ],
-                    'has_more_pending_blocks' => $hasMore,
-                ],
-            ]);
+            for ($index = 1; $index <= $highestIndex; $index++) {
+                $raw = $blockValues[$index] ?? '0';
+                $values[] = is_numeric($raw) ? 0 + $raw : (string) $raw;
+            }
+
+            $stationCode = ctype_digit((string) $station->code)
+                ? (int) $station->code
+                : $station->code;
+
+            return response()->json(array_merge(
+                [$stationCode, $blockNumber],
+                $values,
+            ));
         }
 
-        return response()->json([
-            'status' => 'ok',
-            'station' => [
-                'code' => $station->code,
-                'name' => $station->name,
-                'region' => $station->region,
-            ],
-            'settings' => [
-                'pending_setting_blocks' => [],
-                'pending_setting_metadata' => [],
-                'has_more_pending_blocks' => false,
-            ],
-        ]);
+        return response()->json([]);
     }
 }
