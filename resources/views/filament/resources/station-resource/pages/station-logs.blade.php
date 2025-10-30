@@ -3,15 +3,26 @@
         <table class="w-full border-collapse text-sm">
             <thead class="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                    <th class="border dark:border-gray-700 p-2">время</th>
-                    <th class="border dark:border-gray-700 p-2">событие</th>
-                    <th class="border dark:border-gray-700 p-2" colspan="3">стир. прог. белье</th>
-                    <th class="border dark:border-gray-700 p-2">1</th>
-                    <th class="border dark:border-gray-700 p-2" colspan="6">стир. машины (1 = 3 программа, 2 сигнал)</th>
-                    <th class="border dark:border-gray-700 p-2">1</th>
-                    <th class="border dark:border-gray-700 p-2" colspan="8">моющее средство</th>
-                    <th class="border dark:border-gray-700 p-2">комментарий</th>
-                    <th class="border dark:border-gray-700 p-2">Действия</th>
+                    <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">время</th>
+                    <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">событие</th>
+                    <th class="border dark:border-gray-700 p-2 text-center" colspan="3">стир / прогр / бельё</th>
+                    <th class="border dark:border-gray-700 p-2 text-center" colspan="8">стир. машины <br><span class="text-xs">(32 = 3 программа, 2 сигнал)</span></th>
+                    <th class="border dark:border-gray-700 p-2 text-center" colspan="8">моющие средства</th>
+                    <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">комментарий</th>
+                    <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">действия</th>
+                </tr>
+                <tr>
+                    <th class="border dark:border-gray-700 p-2 text-center">№</th>
+                    <th class="border dark:border-gray-700 p-2 text-center">№</th>
+                    <th class="border dark:border-gray-700 p-2 text-center">кг</th>
+                    <th class="border dark:border-gray-700 p-2 text-center">сигн 1</th>
+                    @foreach(range(1, 6) as $index)
+                        <th class="border dark:border-gray-700 p-2 text-center">{{ $index }}</th>
+                    @endforeach
+                    <th class="border dark:border-gray-700 p-2 text-center">сигн 2</th>
+                    @foreach(range(1, 8) as $index)
+                        <th class="border dark:border-gray-700 p-2 text-center">{{ $index }}</th>
+                    @endforeach
                 </tr>
             </thead>
             <tbody>
