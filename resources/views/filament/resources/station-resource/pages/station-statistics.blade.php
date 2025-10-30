@@ -24,27 +24,51 @@
         </div>
 
         {{-- Таблица статистики --}}
+        <style>
+            .statistics-table thead tr:first-child th {
+                height: 9rem;
+                vertical-align: bottom;
+            }
+
+            .statistics-table .rotate-header {
+                padding: 0;
+            }
+
+            .statistics-table .rotate-header span {
+                display: inline-block;
+                transform: rotate(-90deg);
+                transform-origin: bottom left;
+                white-space: nowrap;
+                margin: 0.5rem;
+            }
+        </style>
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
-            <table class="w-full border-collapse text-xs">
+            <table class="w-full border-collapse text-xs statistics-table">
                 <thead>
                     {{-- Первая строка заголовка --}}
                     <tr>
                         <th colspan="3" class="text-left bg-blue-50 dark:bg-blue-900 px-2 py-1 border dark:border-gray-700 font-medium"></th>
                         
                         @foreach($this->getProgramNames() as $name)
-                            <th colspan="2" class="border dark:border-gray-700 p-1">{{ $name }} - {{ $loop->iteration }}</th>
+                            <th colspan="2" class="border dark:border-gray-700 rotate-header">
+                                <span>{{ $name }} - {{ $loop->iteration }}</span>
+                            </th>
                         @endforeach
 
                         <th class="bg-blue-200 dark:bg-blue-700 px-2 py-1 border dark:border-gray-700 font-medium">всего</th>
                         
                         @foreach($this->getChemNames() as $name)
-                            <th colspan="2" class="border dark:border-gray-700 p-1">{{ $name }} - {{ $loop->iteration }}</th>
+                            <th colspan="2" class="border dark:border-gray-700 rotate-header">
+                                <span>{{ $name }} - {{ $loop->iteration }}</span>
+                            </th>
                         @endforeach
                         
                         <th class="bg-blue-200 dark:bg-blue-700 px-2 py-1 border dark:border-gray-700 font-medium">всего</th>
                         
                         @foreach($this->getMachineNames() as $name)
-                            <th colspan="2" class="border dark:border-gray-700 p-1">{{ $name }} - {{ $loop->iteration }}</th>
+                            <th colspan="2" class="border dark:border-gray-700 rotate-header">
+                                <span>{{ $name }} - {{ $loop->iteration }}</span>
+                            </th>
                         @endforeach
                         
                         <th class="bg-blue-200 dark:bg-blue-700 px-2 py-1 border dark:border-gray-700 font-medium">всего</th>
