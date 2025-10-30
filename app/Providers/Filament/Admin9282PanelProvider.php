@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\UserStationsWidget;
 use App\Models\Company;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -46,6 +47,7 @@ class Admin9282PanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
+                UserStationsWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
