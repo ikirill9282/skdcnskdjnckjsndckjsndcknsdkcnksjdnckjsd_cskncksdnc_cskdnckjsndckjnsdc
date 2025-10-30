@@ -3,7 +3,8 @@
 namespace App\Filament\Resources\StationResource\Pages;
 
 use App\Filament\Resources\StationResource;
-use App\Models\StationSettingValue;
+use App\Services\StationSettings\SettingBlockChangeTracker;
+use App\Services\StationSettings\StationSettingValueWriter;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
@@ -123,6 +124,9 @@ class StationStatus extends Page
 
     protected function syncSettingsBlock(): void
     {
+        $stationId = $this->record->id;
+        $changedBlocks = [];
+
         $map = [
             1 => $this->status,
             2 => $this->detergent,
@@ -132,15 +136,21 @@ class StationStatus extends Page
         ];
 
         foreach ($map as $index => $value) {
-            StationSettingValue::updateOrCreate(
-                [
-                    'station_id' => $this->record->id,
-                    'block_number' => 306,
-                    'setting_index' => $index,
-                ],
-                [
-                    'value' => (string) $value,
-                ],
+            if (StationSettingValueWriter::write(
+                $stationId,
+                306,
+                $index,
+                (string) $value,
+            )) {
+                $changedBlocks[306] = true;
+            }
+        }
+
+        if ($changedBlocks !== []) {
+            SettingBlockChangeTracker::markBlocksChanged(
+                $stationId,
+                array_keys($changedBlocks),
+                'status'
             );
         }
     }

@@ -4,7 +4,8 @@ namespace App\Filament\Resources\StationResource\Pages;
 
 use App\Filament\Resources\StationResource;
 use App\Models\Program;
-use App\Models\StationSettingValue;
+use App\Services\StationSettings\SettingBlockChangeTracker;
+use App\Services\StationSettings\StationSettingValueWriter;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
@@ -189,43 +190,43 @@ class StationAutoPrograms extends Page
 
     private function syncProgramSettings(int $programNumber): void
     {
+        $stationId = $this->record->id;
+        $changedBlocks = [];
+
         $activeBlock = $programNumber * 10 + 104;
 
         for ($offset = 0; $offset < 6; $offset++) {
             $active = $this->activeMachines[$offset] ?? false;
-            StationSettingValue::updateOrCreate(
-                [
-                    'station_id' => $this->record->id,
-                    'block_number' => $activeBlock,
-                    'setting_index' => $offset + 1,
-                ],
-                [
-                    'value' => $this->booleanValue($active) ? '1' : '0',
-                ],
-            );
+
+            if (StationSettingValueWriter::write(
+                $stationId,
+                $activeBlock,
+                $offset + 1,
+                $this->booleanValue($active) ? '1' : '0',
+            )) {
+                $changedBlocks[$activeBlock] = true;
+            }
         }
 
-        StationSettingValue::updateOrCreate(
-            [
-                'station_id' => $this->record->id,
-                'block_number' => $activeBlock,
-                'setting_index' => 9,
-            ],
-            [
-                'value' => $this->stringValue($this->loadPercentage),
-            ],
-        );
+        if (StationSettingValueWriter::write(
+            $stationId,
+            $activeBlock,
+            9,
+            $this->stringValue($this->loadPercentage),
+        )) {
+            $changedBlocks[$activeBlock] = true;
+        }
 
-        StationSettingValue::updateOrCreate(
-            [
-                'station_id' => $this->record->id,
-                'block_number' => $programNumber * 10 + 109,
-                'setting_index' => 1,
-            ],
-            [
-                'value' => (string) $this->programName,
-            ],
-        );
+        $nameBlock = $programNumber * 10 + 109;
+
+        if (StationSettingValueWriter::write(
+            $stationId,
+            $nameBlock,
+            1,
+            (string) $this->programName,
+        )) {
+            $changedBlocks[$nameBlock] = true;
+        }
 
         $base = $this->programBase($programNumber);
 
@@ -235,17 +236,23 @@ class StationAutoPrograms extends Page
             for ($row = 1; $row <= 8; $row++) {
                 $value = $this->scenarios[$row - 1][$col - 1] ?? '';
 
-                StationSettingValue::updateOrCreate(
-                    [
-                        'station_id' => $this->record->id,
-                        'block_number' => $block,
-                        'setting_index' => $row,
-                    ],
-                    [
-                        'value' => $this->stringValue($value),
-                    ],
-                );
+                if (StationSettingValueWriter::write(
+                    $stationId,
+                    $block,
+                    $row,
+                    $this->stringValue($value),
+                )) {
+                    $changedBlocks[$block] = true;
+                }
             }
+        }
+
+        if ($changedBlocks !== []) {
+            SettingBlockChangeTracker::markBlocksChanged(
+                $stationId,
+                array_keys($changedBlocks),
+                'auto-programs'
+            );
         }
     }
 

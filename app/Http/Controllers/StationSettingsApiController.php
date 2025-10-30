@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Station;
 use App\Models\StationSettingValue;
+use App\Services\StationSettings\SettingBlockChangeTracker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -205,6 +206,26 @@ class StationSettingsApiController extends Controller
             })
             ->toArray();
 
+        $pendingUpdates = $station->settingBlockUpdates()
+            ->whereNull('sent_at')
+            ->get(['block_number', 'changed_by', 'updated_at']);
+
+        $pendingSettingBlocks = [];
+        $pendingMetadata = [];
+
+        foreach ($pendingUpdates as $update) {
+            $blockNumber = (int) $update->block_number;
+            $pendingSettingBlocks[$blockNumber] = $settingBlocks[$blockNumber] ?? [];
+            $pendingMetadata[$blockNumber] = [
+                'changed_by' => $update->changed_by,
+                'updated_at' => $update->updated_at?->toIso8601String(),
+            ];
+        }
+
+        if ($pendingSettingBlocks !== []) {
+            SettingBlockChangeTracker::markBlocksSent($station->id, array_keys($pendingSettingBlocks));
+        }
+
         return response()->json([
             'status' => 'ok',
             'station' => [
@@ -229,6 +250,8 @@ class StationSettingsApiController extends Controller
                 'warnings' => $station->warnings,
                 'errors' => $station->errors,
                 'setting_blocks' => $settingBlocks,
+                'pending_setting_blocks' => $pendingSettingBlocks,
+                'pending_setting_metadata' => $pendingMetadata,
             ],
         ]);
     }

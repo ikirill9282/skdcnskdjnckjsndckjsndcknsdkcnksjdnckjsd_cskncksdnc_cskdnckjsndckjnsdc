@@ -3,7 +3,8 @@
 namespace App\Filament\Resources\StationResource\Pages;
 
 use App\Filament\Resources\StationResource;
-use App\Models\StationSettingValue;
+use App\Services\StationSettings\SettingBlockChangeTracker;
+use App\Services\StationSettings\StationSettingValueWriter;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
@@ -111,58 +112,61 @@ class StationMachines extends Page
 
     protected function syncMachineSettings(): void
     {
+        $stationId = $this->record->id;
+        $changedBlocks = [];
+
         foreach ($this->machines as $offset => $machine) {
             $index = $offset + 1;
             $nameBlock = 310 + $index;
 
-            StationSettingValue::updateOrCreate(
-                [
-                    'station_id' => $this->record->id,
-                    'block_number' => $nameBlock,
-                    'setting_index' => 3,
-                ],
-                [
-                    'value' => (string) ($machine['name'] ?? ''),
-                ],
-            );
+            if (StationSettingValueWriter::write(
+                $stationId,
+                $nameBlock,
+                3,
+                (string) ($machine['name'] ?? ''),
+            )) {
+                $changedBlocks[$nameBlock] = true;
+            }
 
-            StationSettingValue::updateOrCreate(
-                [
-                    'station_id' => $this->record->id,
-                    'block_number' => 322,
-                    'setting_index' => $index,
-                ],
-                [
-                    'value' => $this->stringValue($machine['loading'] ?? ''),
-                ],
-            );
+            if (StationSettingValueWriter::write(
+                $stationId,
+                322,
+                $index,
+                $this->stringValue($machine['loading'] ?? ''),
+            )) {
+                $changedBlocks[322] = true;
+            }
 
-            StationSettingValue::updateOrCreate(
-                [
-                    'station_id' => $this->record->id,
-                    'block_number' => 323,
-                    'setting_index' => $index,
-                ],
-                [
-                    'value' => $this->stringValue($machine['trace'] ?? ''),
-                ],
-            );
+            if (StationSettingValueWriter::write(
+                $stationId,
+                323,
+                $index,
+                $this->stringValue($machine['trace'] ?? ''),
+            )) {
+                $changedBlocks[323] = true;
+            }
 
-            StationSettingValue::updateOrCreate(
-                [
-                    'station_id' => $this->record->id,
-                    'block_number' => 321,
-                    'setting_index' => $index,
-                ],
-                [
-                    'value' => $this->booleanValue($machine['active'] ?? false) ? '1' : '0',
-                ],
-            );
+            if (StationSettingValueWriter::write(
+                $stationId,
+                321,
+                $index,
+                $this->booleanValue($machine['active'] ?? false) ? '1' : '0',
+            )) {
+                $changedBlocks[321] = true;
+            }
         }
 
         $this->record->update([
             'machines_data' => $this->machines,
         ]);
+
+        if ($changedBlocks !== []) {
+            SettingBlockChangeTracker::markBlocksChanged(
+                $stationId,
+                array_keys($changedBlocks),
+                'machines'
+            );
+        }
     }
 
     protected function stringValue(mixed $value): string

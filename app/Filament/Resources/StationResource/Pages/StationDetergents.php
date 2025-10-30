@@ -3,7 +3,8 @@
 namespace App\Filament\Resources\StationResource\Pages;
 
 use App\Filament\Resources\StationResource;
-use App\Models\StationSettingValue;
+use App\Services\StationSettings\SettingBlockChangeTracker;
+use App\Services\StationSettings\StationSettingValueWriter;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
@@ -114,69 +115,70 @@ class StationDetergents extends Page
 
     protected function syncDetergentSettings(): void
     {
+        $stationId = $this->record->id;
+        $changedBlocks = [];
+
         foreach ($this->detergents as $offset => $detergent) {
             $index = $offset + 1;
             $nameBlock = 330 + $index; // 331-338
 
-            StationSettingValue::updateOrCreate(
-                [
-                    'station_id' => $this->record->id,
-                    'block_number' => $nameBlock,
-                    'setting_index' => 1,
-                ],
-                [
-                    'value' => (string) ($detergent['name'] ?? ''),
-                ],
-            );
+            if (StationSettingValueWriter::write(
+                $stationId,
+                $nameBlock,
+                1,
+                (string) ($detergent['name'] ?? ''),
+            )) {
+                $changedBlocks[$nameBlock] = true;
+            }
 
-            StationSettingValue::updateOrCreate(
-                [
-                    'station_id' => $this->record->id,
-                    'block_number' => 342,
-                    'setting_index' => $index,
-                ],
-                [
-                    'value' => $this->stringValue($detergent['container'] ?? ''),
-                ],
-            );
+            if (StationSettingValueWriter::write(
+                $stationId,
+                342,
+                $index,
+                $this->stringValue($detergent['container'] ?? ''),
+            )) {
+                $changedBlocks[342] = true;
+            }
 
-            StationSettingValue::updateOrCreate(
-                [
-                    'station_id' => $this->record->id,
-                    'block_number' => 347,
-                    'setting_index' => $index,
-                ],
-                [
-                    'value' => $this->stringValue($detergent['density'] ?? ''),
-                ],
-            );
+            if (StationSettingValueWriter::write(
+                $stationId,
+                347,
+                $index,
+                $this->stringValue($detergent['density'] ?? ''),
+            )) {
+                $changedBlocks[347] = true;
+            }
 
-            StationSettingValue::updateOrCreate(
-                [
-                    'station_id' => $this->record->id,
-                    'block_number' => 340,
-                    'setting_index' => $index,
-                ],
-                [
-                    'value' => $this->stringValue($detergent['calibration'] ?? ''),
-                ],
-            );
+            if (StationSettingValueWriter::write(
+                $stationId,
+                340,
+                $index,
+                $this->stringValue($detergent['calibration'] ?? ''),
+            )) {
+                $changedBlocks[340] = true;
+            }
 
-            StationSettingValue::updateOrCreate(
-                [
-                    'station_id' => $this->record->id,
-                    'block_number' => 341,
-                    'setting_index' => $index,
-                ],
-                [
-                    'value' => $this->booleanValue($detergent['active'] ?? false) ? '1' : '0',
-                ],
-            );
+            if (StationSettingValueWriter::write(
+                $stationId,
+                341,
+                $index,
+                $this->booleanValue($detergent['active'] ?? false) ? '1' : '0',
+            )) {
+                $changedBlocks[341] = true;
+            }
         }
 
         $this->record->update([
             'detergents_data' => $this->detergents,
         ]);
+
+        if ($changedBlocks !== []) {
+            SettingBlockChangeTracker::markBlocksChanged(
+                $stationId,
+                array_keys($changedBlocks),
+                'detergents'
+            );
+        }
     }
 
     protected function stringValue(mixed $value): string

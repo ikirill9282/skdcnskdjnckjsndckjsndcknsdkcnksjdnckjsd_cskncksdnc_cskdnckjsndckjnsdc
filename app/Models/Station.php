@@ -71,5 +71,10 @@ class Station extends Model
 				return $this->hasMany(StationSettingValue::class);
 		}
 
+		public function settingBlockUpdates()
+		{
+				return $this->hasMany(StationSettingBlockUpdate::class);
+		}
+
 
 }
