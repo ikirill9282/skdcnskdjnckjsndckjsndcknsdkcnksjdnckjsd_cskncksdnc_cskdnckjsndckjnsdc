@@ -15,7 +15,7 @@
                     <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">действия</th>
                 </tr>
                 <tr>
-                    <th class="border dark:border-gray-700 p-2 text-center">№</th>
+                    <th class="border dark:border-gray-700 p-2 text-left">№</th>
                     <th class="border dark:border-gray-700 p-2 text-center">№</th>
                     <th class="border dark:border-gray-700 p-2 text-center">кг</th>
                     @foreach(range(1, 6) as $index)

@@ -6,7 +6,7 @@
                 <table class="w-full border-collapse">
                     <thead>
                         <tr class="border-b dark:border-gray-700">
-                            <th class="text-center p-2 text-sm font-medium">№</th>
+                            <th class="text-left p-2 text-sm font-medium">№</th>
                             <th class="text-center p-2 text-sm font-medium">Имя средства</th>
                             <th class="text-center p-2 text-sm font-medium">тара</th>
                             <th class="text-center p-2 text-sm font-medium">плотность</th>
