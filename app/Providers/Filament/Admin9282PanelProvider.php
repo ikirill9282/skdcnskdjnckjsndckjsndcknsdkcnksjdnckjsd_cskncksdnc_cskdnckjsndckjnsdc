@@ -37,6 +37,7 @@ class Admin9282PanelProvider extends PanelProvider
             ->login()
             ->brandName(fn (): string => $this->resolveBrandName())
             ->brandLogo(fn (): ?HtmlString => $this->resolveBrandLogo())
+            ->favicon(fn (): ?string => $this->resolveBrandFaviconUrl())
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -119,5 +120,23 @@ class Admin9282PanelProvider extends PanelProvider
         return $company = $user->companies()
             ->orderBy('companies.created_at')
             ->first();
+    }
+
+    protected function resolveBrandFaviconUrl(): ?string
+    {
+        $company = $this->resolveBrandCompany();
+
+        if (! $company || blank($company->logo)) {
+            return null;
+        }
+
+        $disk = Storage::disk('public');
+        $logoPath = $company->logo;
+
+        if (! $disk->exists($logoPath)) {
+            return null;
+        }
+
+        return $disk->url($logoPath);
     }
 }
