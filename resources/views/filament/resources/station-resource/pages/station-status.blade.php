@@ -65,6 +65,7 @@
                     wire:model="process_completion" 
                     min="0"
                     max="100"
+                    readonly
                     class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
                     placeholder="0"
                 >
