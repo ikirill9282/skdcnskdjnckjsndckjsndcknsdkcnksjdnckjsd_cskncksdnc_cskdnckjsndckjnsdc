@@ -29,8 +29,8 @@
             <label class="text-sm font-medium">Масштаб таблицы</label>
             <input
                 type="range"
-                min="0.6"
-                max="1"
+                min="0.5"
+                max="2"
                 step="0.05"
                 x-model.number="tableScale"
                 class="w-48"

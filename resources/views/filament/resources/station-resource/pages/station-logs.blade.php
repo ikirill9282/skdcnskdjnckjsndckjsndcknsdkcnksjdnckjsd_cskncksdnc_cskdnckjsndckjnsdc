@@ -1,7 +1,26 @@
 
 <x-filament-panels::page>
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
-        <table class="w-full border-collapse text-sm">
+    <div x-data="{ tableScale: 0.85 }" class="space-y-4">
+        {{-- Настройки масштаба --}}
+        <div class="flex flex-wrap items-center justify-end gap-3 bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4">
+            <label class="text-sm font-medium">Масштаб таблицы</label>
+            <input
+                type="range"
+                min="0.6"
+                max="1"
+                step="0.05"
+                x-model.number="tableScale"
+                class="w-48"
+            >
+            <span class="text-sm text-gray-600 dark:text-gray-300" x-text="Math.round(tableScale * 100) + '%'"></span>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+            <div
+                class="min-w-max"
+                x-bind:style="`transform: scale(${tableScale}); transform-origin: top left; width: ${(100 / tableScale).toFixed(2)}%;`"
+            >
+                <table class="w-full border-collapse text-sm">
             <thead class="bg-gray-50 dark:bg-gray-900">
                 <tr>
                     <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">время</th>
