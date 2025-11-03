@@ -21,7 +21,7 @@
                 x-bind:style="`transform: scale(${tableScale}); transform-origin: top left; width: ${(100 / tableScale).toFixed(2)}%;`"
             >
                 <table class="w-full border-collapse text-sm">
-            <thead class="bg-gray-50 dark:bg-gray-900">
+                    <thead class="bg-gray-50 dark:bg-gray-900">
                 <tr>
                     <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">время</th>
                     <th class="border dark:border-gray-700 p-2 align-middle" rowspan="2">событие</th>
