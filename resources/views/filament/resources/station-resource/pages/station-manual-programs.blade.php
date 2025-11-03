@@ -31,7 +31,7 @@
 
             {{-- Активные машины --}}
             <div>
-                <label class="block text-sm font-medium mb-2">Активная в стиральных машинах</label>
+                <label class="block text-sm font-medium mb-2 text-center">Активная в стиральных машинах</label>
                 <div class="flex flex-wrap justify-center gap-4">
                     @foreach($activeMachines as $index => $active)
                         <label class="flex items-center gap-2">
@@ -81,15 +81,17 @@
             </div>
 
             {{-- Загрузка кг % --}}
-            <div>
-                <label class="block text-sm font-medium mb-2">загрузка кг %</label>
-                <input 
-                    type="text"
-                    wire:model="loadPercentage"
-                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                    min="0"
-                    max="100"
-                >
+            <div class="flex justify-end">
+                <div class="w-full max-w-xs">
+                    <label class="block text-sm font-medium mb-2 text-right">загрузка кг %</label>
+                    <input 
+                        type="text"
+                        wire:model="loadPercentage"
+                        class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-right"
+                        min="0"
+                        max="100"
+                    >
+                </div>
             </div>
 
             {{-- Таблица задержка в минутах --}}

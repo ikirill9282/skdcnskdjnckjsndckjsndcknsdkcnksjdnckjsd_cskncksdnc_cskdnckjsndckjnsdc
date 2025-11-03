@@ -31,7 +31,7 @@
 
             {{-- Активные машины --}}
             <div>
-                <label class="block text-sm font-medium mb-2">Активная в стиральных машинах</label>
+                <label class="block text-sm font-medium mb-2 text-center">Активная в стиральных машинах</label>
                 <div class="flex flex-wrap justify-center gap-4">
                     @foreach($activeMachines as $index => $active)
                         <label class="flex items-center gap-2">
