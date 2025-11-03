@@ -101,7 +101,7 @@
                         <th colspan="1" class="border dark:border-gray-700 p-1"></th>
                         <th colspan="16" class="border dark:border-gray-700 p-1">Литров всего</th>
                         <th colspan="1" class="border dark:border-gray-700 p-1"></th>
-                        <th colspan="8" class="border dark:border-gray-700 p-1">кг в каждой стиральной машине</th>
+                        <th colspan="12" class="border dark:border-gray-700 p-1">кг в каждой стиральной машине</th>
                         <th colspan="1" class="border dark:border-gray-700 p-1"></th>
                         <th colspan="1" class="border dark:border-gray-700 p-1"></th>
                     </tr>
