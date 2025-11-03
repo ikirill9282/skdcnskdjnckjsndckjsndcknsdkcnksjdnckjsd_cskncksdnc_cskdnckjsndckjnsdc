@@ -9,7 +9,7 @@
                             <th class="text-left p-2 text-sm font-medium">№</th>
                             <th class="text-center p-2 text-sm font-medium">Имя средства</th>
                             <th class="text-center p-2 text-sm font-medium">тара</th>
-                            <th class="text-center p-2 text-sm font-medium">плотность</th>
+                            <th class="text-center p-2 text-sm font-medium">откат</th>
                             <th class="text-center p-2 text-sm font-medium">калибровка</th>
                             <th class="text-center p-2 text-sm font-medium">Актив</th>
                         </tr>
@@ -37,7 +37,7 @@
                                     >
                                 </td>
 
-                                {{-- Плотность --}}
+                                {{-- откат --}}
                                 <td class="p-2">
                                     <input 
                                         type="text" 

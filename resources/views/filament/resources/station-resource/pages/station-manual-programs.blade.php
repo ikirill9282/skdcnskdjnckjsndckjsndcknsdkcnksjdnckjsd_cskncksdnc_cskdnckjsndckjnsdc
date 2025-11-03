@@ -1,12 +1,7 @@
 
 <x-filament-panels::page>
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <form
-            x-data
-            wire:submit.prevent="save"
-            x-on:submit="if (! confirm('Вы уверены, что хотите сохранить изменения?')) { event.preventDefault(); event.stopImmediatePropagation(); }"
-            class="space-y-6"
-        >
+        <form wire:submit.prevent="save" class="space-y-6">
             
             {{-- Выбор программы --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
