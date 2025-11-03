@@ -4,19 +4,19 @@
     <div x-data="{ tableScale: 0.85 }" class="space-y-4">
         {{-- Информация о станции --}}
         <div class="grid gap-4 md:grid-cols-3 overflow-hidden" style="height: 150px;">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 text-center h-full overflow-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 h-full overflow-hidden flex flex-col items-center justify-center text-center">
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Номер станции</p>
                 <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                     {{ $this->getStationNumber() }}
                 </p>
             </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 text-center h-full overflow-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 h-full overflow-hidden flex flex-col items-center justify-center text-center">
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Имя станции</p>
                 <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                     {{ $this->getStationName() }}
                 </p>
             </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex items-center justify-center h-full overflow-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col items-center justify-center h-full overflow-hidden">
                 @if ($logoUrl = $this->getStationLogoUrl())
                     <img src="{{ $logoUrl }}" alt="Логотип станции" class="max-h-16 object-contain" style="max-height: 100%;object-fit: contain;">
                 @else
