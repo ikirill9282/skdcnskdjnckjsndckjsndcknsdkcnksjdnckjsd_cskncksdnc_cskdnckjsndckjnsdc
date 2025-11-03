@@ -9,6 +9,7 @@ use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class StationStatistics extends Page
 {
@@ -148,6 +149,33 @@ class StationStatistics extends Page
         }
 
         return $user->hasAnyRole(['super-admin', 'company-admin', 'manager']);
+    }
+
+    public function getStationNumber(): string
+    {
+        return (string) ($this->record->code ?? $this->record->id);
+    }
+
+    public function getStationName(): string
+    {
+        return (string) ($this->record->name ?? 'Без названия');
+    }
+
+    public function getStationLogoUrl(): ?string
+    {
+        $logoPath = $this->record->company?->logo ?? null;
+
+        if (blank($logoPath)) {
+            return null;
+        }
+
+        $disk = Storage::disk('public');
+
+        if (! $disk->exists($logoPath)) {
+            return null;
+        }
+
+        return $disk->url($logoPath);
     }
 
     protected function ensureAuthorized(): void
