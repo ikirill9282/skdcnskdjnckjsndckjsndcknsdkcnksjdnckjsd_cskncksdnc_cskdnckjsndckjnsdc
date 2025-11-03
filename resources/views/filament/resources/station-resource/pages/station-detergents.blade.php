@@ -2,9 +2,8 @@
 <x-filament-panels::page>
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <form
-            x-data
             wire:submit.prevent="save"
-            x-on:submit="if (! confirm('Вы уверены, что хотите сохранить изменения?')) { event.preventDefault(); event.stopImmediatePropagation(); }"
+            onsubmit="return confirm('Вы уверены, что хотите сохранить изменения?')"
         >
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse">

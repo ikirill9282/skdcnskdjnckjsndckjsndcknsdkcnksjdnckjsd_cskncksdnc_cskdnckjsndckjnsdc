@@ -8,9 +8,8 @@
             <h2 class="text-lg font-bold mb-4">Ручная подача средства</h2>
             
             <form
-                x-data
                 wire:submit.prevent="submit"
-                x-on:submit="if (! confirm('Вы уверены, что хотите сохранить изменения?')) { event.preventDefault(); event.stopImmediatePropagation(); }"
+                onsubmit="return confirm('Вы уверены, что хотите сохранить изменения?')"
                 class="space-y-4"
             >
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
