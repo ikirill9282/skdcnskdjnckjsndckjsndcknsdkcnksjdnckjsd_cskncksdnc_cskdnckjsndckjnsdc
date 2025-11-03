@@ -48,7 +48,7 @@
                     <table class="w-full border-collapse">
                         <thead>
                             <tr class="border-b dark:border-gray-700">
-                                <th class="p-2 text-sm font-medium">#</th>
+                                <th class="p-2 text-sm font-medium">№</th>
                                 @for($i = 1; $i <= 5; $i++)
                                     <th class="p-2 text-sm font-medium">{{ $i }}</th>
                                 @endfor

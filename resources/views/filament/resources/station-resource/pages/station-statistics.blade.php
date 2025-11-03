@@ -48,7 +48,7 @@
                 <thead>
                     {{-- Первая строка заголовка --}}
                     <tr>
-                        <th colspan="3" class="text-left bg-blue-50 dark:bg-blue-900 px-2 py-1 border dark:border-gray-700 font-medium"></th>
+                        <th colspan="3" class="text-center bg-blue-50 dark:bg-blue-900 px-2 py-1 border dark:border-gray-700 font-medium"></th>
                         
                         @foreach($this->getProgramNames() as $name)
                             <th colspan="2" class="border dark:border-gray-700 rotate-header">
