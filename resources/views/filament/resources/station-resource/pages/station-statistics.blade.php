@@ -1,7 +1,7 @@
 
 <x-filament-panels::page>
     @php($canManage = $this->canManageStatistics())
-    <div class="space-y-4">
+    <div x-data="{ tableScale: 0.85 }" class="space-y-4">
         {{-- Фильтр по датам --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
             <div class="flex gap-4 items-end">
@@ -24,6 +24,20 @@
             </div>
         </div>
 
+        {{-- Настройки масштаба --}}
+        <div class="flex flex-wrap items-center justify-end gap-3">
+            <label class="text-sm font-medium">Масштаб таблицы</label>
+            <input
+                type="range"
+                min="0.6"
+                max="1"
+                step="0.05"
+                x-model.number="tableScale"
+                class="w-48"
+            >
+            <span class="text-sm text-gray-600 dark:text-gray-300" x-text="Math.round(tableScale * 100) + '%'"></span>
+        </div>
+
         {{-- Таблица статистики --}}
         <style>
             .statistics-table thead tr:first-child th {
@@ -44,9 +58,13 @@
             }
         </style>
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
-            <table class="w-full border-collapse text-xs statistics-table">
-                <thead>
-                    {{-- Первая строка заголовка --}}
+            <div
+                class="min-w-max"
+                x-bind:style="`transform: scale(${tableScale}); transform-origin: top left; width: ${(100 / tableScale).toFixed(2)}%;`"
+            >
+                <table class="w-full border-collapse text-xs statistics-table">
+                    <thead>
+                        {{-- Первая строка заголовка --}}
                     <tr>
                         <th colspan="3" class="text-center bg-blue-50 dark:bg-blue-900 px-2 py-1 border dark:border-gray-700 font-medium"></th>
                         
@@ -149,8 +167,9 @@
                             </td>
                         </tr>
                     @endforelse
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </x-filament-panels::page>
