@@ -101,7 +101,7 @@
                         <th colspan="1" class="border dark:border-gray-700 p-1"></th>
                         <th colspan="16" class="border dark:border-gray-700 p-1">Литров всего</th>
                         <th colspan="1" class="border dark:border-gray-700 p-1"></th>
-                        <th colspan="16" class="border dark:border-gray-700 p-1">кг в каждой стиральной машине</th>
+                        <th colspan="14" class="border dark:border-gray-700 p-1">кг в каждой стиральной машине</th>
                         <th colspan="1" class="border dark:border-gray-700 p-1"></th>
                         <th colspan="1" class="border dark:border-gray-700 p-1"></th>
                     </tr>
@@ -162,7 +162,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="62" class="border dark:border-gray-700 p-4 text-center text-gray-500">
+                            <td colspan="68" class="border dark:border-gray-700 p-4 text-center text-gray-500">
                                 Нет данных за выбранный период
                             </td>
                         </tr>
