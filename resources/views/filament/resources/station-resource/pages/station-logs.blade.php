@@ -1,3 +1,14 @@
+<style>
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+</style>
 <x-filament-panels::page>
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
         <table class="w-full border-collapse text-sm">
