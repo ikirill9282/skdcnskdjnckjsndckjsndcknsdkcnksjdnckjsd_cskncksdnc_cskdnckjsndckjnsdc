@@ -18,7 +18,7 @@
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex items-center justify-center h-full overflow-hidden">
                 @if ($logoUrl = $this->getStationLogoUrl())
-                    <img src="{{ $logoUrl }}" alt="Логотип станции" class="max-h-16 object-contain">
+                    <img src="{{ $logoUrl }}" alt="Логотип станции" class="max-h-16 object-contain" style="max-height: 100%;object-fit: contain;">
                 @else
                     <span class="text-sm text-gray-500 dark:text-gray-400">Логотип отсутствует</span>
                 @endif
