@@ -3,7 +3,7 @@
     @php($canManage = $this->canManageStatistics())
     <div x-data="{ tableScale: 0.85 }" class="space-y-4">
         {{-- Информация о станции --}}
-        <div class="grid gap-4 md:grid-cols-3 max-h-[150px]">
+        <div class="grid gap-4 md:grid-cols-3 overflow-hidden" style="max-height: 150px;">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 text-center h-full overflow-hidden">
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Номер станции</p>
                 <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
