@@ -162,7 +162,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="68" class="border dark:border-gray-700 p-4 text-center text-gray-500">
+                            <td colspan="78" class="border dark:border-gray-700 p-4 text-center text-gray-500">
                                 Нет данных за выбранный период
                             </td>
                         </tr>
