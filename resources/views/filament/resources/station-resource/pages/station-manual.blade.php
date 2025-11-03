@@ -7,7 +7,12 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <h2 class="text-lg font-bold mb-4">Ручная подача средства</h2>
             
-            <form wire:submit.prevent="submit" class="space-y-4">
+            <form
+                x-data
+                wire:submit.prevent="submit"
+                x-on:submit="if (! confirm('Вы уверены, что хотите сохранить изменения?')) { event.preventDefault(); event.stopImmediatePropagation(); }"
+                class="space-y-4"
+            >
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     
                     {{-- Моющее средство --}}

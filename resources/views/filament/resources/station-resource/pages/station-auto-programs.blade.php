@@ -1,7 +1,12 @@
 
 <x-filament-panels::page>
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <form wire:submit.prevent="save" class="space-y-6">
+        <form
+            x-data
+            wire:submit.prevent="save"
+            x-on:submit="if (! confirm('Вы уверены, что хотите сохранить изменения?')) { event.preventDefault(); event.stopImmediatePropagation(); }"
+            class="space-y-6"
+        >
             
             {{-- Выбор программы --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -27,7 +32,7 @@
             {{-- Активные машины --}}
             <div>
                 <label class="block text-sm font-medium mb-2">Активная в стиральных машинах</label>
-                <div class="flex gap-4">
+                <div class="flex flex-wrap justify-center gap-4">
                     @foreach($activeMachines as $index => $active)
                         <label class="flex items-center gap-2">
                             <span>{{ $index + 1 }}</span>
@@ -76,15 +81,17 @@
             </div>
 
             {{-- Загрузка кг % --}}
-            <div>
-                <label class="block text-sm font-medium mb-2">загрузка кг %</label>
-                <input 
-                    type="text"
-                    wire:model="loadPercentage"
-                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                    min="0"
-                    max="100"
-                >
+            <div class="flex justify-end">
+                <div class="w-full max-w-xs">
+                    <label class="block text-sm font-medium mb-2 text-right">загрузка кг %</label>
+                    <input 
+                        type="text"
+                        wire:model="loadPercentage"
+                        class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 text-right"
+                        min="0"
+                        max="100"
+                    >
+                </div>
             </div>
 
             {{-- Кнопка сохранить --}}

@@ -1,7 +1,11 @@
 
 <x-filament-panels::page>
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <form wire:submit.prevent="save">
+        <form
+            x-data
+            wire:submit.prevent="save"
+            x-on:submit="if (! confirm('Вы уверены, что хотите сохранить изменения?')) { event.preventDefault(); event.stopImmediatePropagation(); }"
+        >
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse">
                     <thead>
