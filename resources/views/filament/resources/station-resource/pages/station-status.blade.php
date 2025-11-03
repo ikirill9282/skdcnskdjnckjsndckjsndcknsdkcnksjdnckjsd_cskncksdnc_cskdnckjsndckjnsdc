@@ -1,9 +1,11 @@
 <style>
-    
-
-    input[type="number"] {
-        -moz-appearance: textfield;
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
+
+
 </style>
 <x-filament-panels::page>
     <form wire:submit.prevent="save" class="space-y-6">
