@@ -30,7 +30,7 @@
             <div>
                 <label for="days_worked" class="block text-sm font-medium mb-2">Кол-во отработанных суток</label>
                 <input 
-                    type="number" 
+                    type="text" 
                     id="days_worked" 
                     wire:model="days_worked"
                     class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"

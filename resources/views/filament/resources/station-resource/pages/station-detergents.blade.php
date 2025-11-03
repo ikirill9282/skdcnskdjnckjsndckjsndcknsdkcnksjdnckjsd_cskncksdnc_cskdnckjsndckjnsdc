@@ -31,7 +31,7 @@
                                 {{-- Тара --}}
                                 <td class="p-2">
                                     <input 
-                                        type="number" 
+                                        type="text" 
                                         wire:model="detergents.{{ $index }}.container"
                                         class="w-full px-2 py-1 border rounded dark:bg-gray-900 dark:border-gray-700"
                                     >
@@ -40,7 +40,7 @@
                                 {{-- Плотность --}}
                                 <td class="p-2">
                                     <input 
-                                        type="number" 
+                                        type="text" 
                                         step="0.001"
                                         wire:model="detergents.{{ $index }}.density"
                                         class="w-full px-2 py-1 border rounded dark:bg-gray-900 dark:border-gray-700"
@@ -50,7 +50,7 @@
                                 {{-- Калибровка --}}
                                 <td class="p-2">
                                     <input 
-                                        type="number" 
+                                        type="text" 
                                         wire:model="detergents.{{ $index }}.calibration"
                                         class="w-full px-2 py-1 border rounded dark:bg-gray-900 dark:border-gray-700"
                                     >

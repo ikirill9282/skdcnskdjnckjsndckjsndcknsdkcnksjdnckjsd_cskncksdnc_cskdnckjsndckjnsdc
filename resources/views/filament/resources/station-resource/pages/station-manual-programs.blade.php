@@ -61,7 +61,7 @@
                                     @foreach($row as $colIndex => $value)
                                         <td class="p-2">
                                             <input 
-                                                type="number"
+                                                type="text"
                                                 wire:model="signals.{{ $rowIndex }}.{{ $colIndex }}"
                                                 class="w-full px-2 py-1 border rounded dark:bg-gray-900 dark:border-gray-700 text-center"
                                                 placeholder=""
@@ -79,7 +79,7 @@
             <div>
                 <label class="block text-sm font-medium mb-2">загрузка кг %</label>
                 <input 
-                    type="number"
+                    type="text"
                     wire:model="loadPercentage"
                     class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
                     min="0"
@@ -107,7 +107,7 @@
                                     @foreach($row as $colIndex => $value)
                                         <td class="p-2">
                                             <input 
-                                                type="number"
+                                                type="text"
                                                 wire:model="delays.{{ $rowIndex }}.{{ $colIndex }}"
                                                 class="w-full px-2 py-1 border rounded dark:bg-gray-900 dark:border-gray-700 text-center"
                                                 placeholder=""

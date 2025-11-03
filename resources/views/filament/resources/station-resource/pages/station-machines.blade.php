@@ -30,7 +30,7 @@
                                 {{-- Загрузка --}}
                                 <td class="p-2">
                                     <input 
-                                        type="number" 
+                                        type="text" 
                                         wire:model="machines.{{ $index }}.loading"
                                         class="w-full px-2 py-1 border rounded dark:bg-gray-900 dark:border-gray-700"
                                     >
@@ -39,7 +39,7 @@
                                 {{-- Трасса --}}
                                 <td class="p-2">
                                     <input 
-                                        type="number" 
+                                        type="text" 
                                         wire:model="machines.{{ $index }}.trace"
                                         class="w-full px-2 py-1 border rounded dark:bg-gray-900 dark:border-gray-700"
                                     >

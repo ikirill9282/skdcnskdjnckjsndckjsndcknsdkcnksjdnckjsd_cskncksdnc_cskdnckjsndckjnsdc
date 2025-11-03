@@ -27,7 +27,7 @@
                     <div>
                         <label for="ml" class="block text-sm font-medium mb-2">Объем (мл)</label>
                         <input 
-                            type="number" 
+                            type="text" 
                             step="0.1"
                             id="ml" 
                             wire:model="ml" 

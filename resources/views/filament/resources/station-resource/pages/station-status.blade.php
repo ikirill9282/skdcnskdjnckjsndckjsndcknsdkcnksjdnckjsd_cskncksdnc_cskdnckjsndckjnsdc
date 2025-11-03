@@ -33,7 +33,7 @@
             <div>
                 <label for="volume" class="block text-sm font-medium mb-2">Объем (л)</label>
                 <input 
-                    type="number" 
+                    type="text" 
                     step="0.01"
                     id="volume" 
                     wire:model="volume" 
@@ -60,7 +60,7 @@
             <div class="md:col-span-2">
                 <label for="process_completion" class="block text-sm font-medium mb-2">Процесс выполнения (%)</label>
                 <input 
-                    type="number" 
+                    type="text" 
                     id="process_completion" 
                     wire:model="process_completion" 
                     min="0"
