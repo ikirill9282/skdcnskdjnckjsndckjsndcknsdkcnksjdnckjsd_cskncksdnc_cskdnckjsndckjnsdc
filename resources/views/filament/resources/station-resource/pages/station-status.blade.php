@@ -1,12 +1,4 @@
-<style>
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
 
-
-</style>
 <x-filament-panels::page>
     <form wire:submit.prevent="save" class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
