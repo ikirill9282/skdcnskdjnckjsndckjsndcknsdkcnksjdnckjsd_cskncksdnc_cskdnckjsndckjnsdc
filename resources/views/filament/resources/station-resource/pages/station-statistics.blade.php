@@ -1,7 +1,13 @@
 
 <x-filament-panels::page>
     @php($canManage = $this->canManageStatistics())
-    <div x-data="{ tableScale: 1 }" class="space-y-4">
+    <div
+        x-data="{
+            tableScale: 1,
+            showStatisticsModal: false,
+        }"
+        class="space-y-4"
+    >
         {{-- Информация о станции --}}
         <div class="grid gap-4 md:grid-cols-3 overflow-hidden" style="height: 150px;">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 h-full overflow-hidden flex flex-col items-center justify-center text-center">
@@ -24,6 +30,70 @@
                 @endif
             </div>
         </div>
+
+        <div class="flex justify-end">
+            <x-filament::button
+                type="button"
+                color="primary"
+                icon="heroicon-o-arrows-pointing-out"
+                x-on:click="showStatisticsModal = true"
+            >
+                Открыть статистику
+            </x-filament::button>
+        </div>
+
+        {{-- Модальное окно со статистикой --}}
+        <div
+            x-cloak
+            x-show="showStatisticsModal"
+            x-transition.opacity
+            @keydown.escape.window="showStatisticsModal = false"
+            class="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
+        >
+            <div class="absolute inset-0 bg-gray-950/70" x-on:click="showStatisticsModal = false"></div>
+
+            <div
+                class="relative z-10 flex h-full w-full max-w-[95vw] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-950"
+                x-on:click.stop
+            >
+                <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-800 dark:bg-gray-900">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Статистика станции</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Таблица и фильтры доступны во весь экран</p>
+                    </div>
+                    <button
+                        type="button"
+                        x-on:click="showStatisticsModal = false"
+                        class="rounded-full p-2 text-gray-500 transition hover:bg-gray-200 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+                    >
+                        <x-heroicon-o-x-mark class="h-5 w-5" />
+                    </button>
+                </div>
+
+                <div class="flex-1 overflow-hidden px-6 py-4">
+                    <div class="flex h-full flex-col gap-4">
+                        {{-- Информация о станции --}}
+                        <div class="grid gap-4 md:grid-cols-3">
+                            <div class="rounded-lg border border-gray-200 bg-white px-6 py-4 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Номер станции</p>
+                                <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                                    {{ $this->getStationNumber() }}
+                                </p>
+                            </div>
+                            <div class="rounded-lg border border-gray-200 bg-white px-6 py-4 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Имя станции</p>
+                                <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                                    {{ $this->getStationName() }}
+                                </p>
+                            </div>
+                            <div class="flex items-center justify-center rounded-lg border border-gray-200 bg-white px-6 py-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                                @if ($logoUrl = $this->getStationLogoUrl())
+                                    <img src="{{ $logoUrl }}" alt="Логотип станции" class="max-h-16 object-contain">
+                                @else
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">Логотип отсутствует</span>
+                                @endif
+                            </div>
+                        </div>
 
         {{-- Фильтр по датам --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
@@ -192,6 +262,10 @@
                     @endforelse
                     </tbody>
                 </table>
+            </div>
+        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
