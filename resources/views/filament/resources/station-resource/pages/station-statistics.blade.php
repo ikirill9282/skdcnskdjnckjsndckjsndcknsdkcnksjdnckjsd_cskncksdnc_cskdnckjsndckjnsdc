@@ -69,7 +69,10 @@
                     size="xs"
                     color="primary"
                     icon="heroicon-o-arrows-pointing-out"
-                    x-on:click="showStatisticsModal = true"
+                    x-on:click="
+                        modalTableScale = tableScale;
+                        showStatisticsModal = true
+                    "
                 >
                     Открыть
                 </x-filament::button>
@@ -230,7 +233,7 @@
             <div class="absolute inset-0 bg-gray-950/70" x-on:click="showStatisticsModal = false"></div>
 
             <div
-                class="relative z-10 flex h-full w-full max-w-[95vw] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-950"
+                class="statistics-modal-content relative z-10 flex h-full w-full max-w-[95vw] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-gray-950"
                 x-on:click.stop
             >
                 <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-800 dark:bg-gray-900">
@@ -247,7 +250,7 @@
                     </button>
                 </div>
 
-                <div class="flex-1 overflow-hidden px-6 py-4">
+                <div class="statistics-modal-content__body flex-1 overflow-hidden px-6 py-4">
                     <div class="flex h-full flex-col gap-4">
                         {{-- Информация о станции --}}
                         <div class="grid gap-4 md:grid-cols-3">
@@ -309,7 +312,7 @@
                         </div>
 
                         {{-- Таблица статистики --}}
-                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+                        <div class="statistics-modal-content__table bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
                             <div
                                 class="min-w-max"
                                 x-bind:style="`transform: scale(${modalTableScale}); transform-origin: top left; width: ${(100 / modalTableScale).toFixed(2)}%;`"

@@ -11,7 +11,25 @@
 }
 
 @layer components {
-    .station-statistics-page .fi-main {
-        max-width: none !important;
+    body.statistics-modal-open {
+        overflow: hidden;
+    }
+
+    .statistics-modal-open .statistics-modal-content {
+        --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.45);
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .statistics-modal-content {
+        max-height: 100%;
+        overflow: hidden;
+    }
+
+    .statistics-modal-content__body {
+        overflow-y: auto;
+    }
+
+    .statistics-modal-content__table {
+        overflow:auto;
     }
 }
