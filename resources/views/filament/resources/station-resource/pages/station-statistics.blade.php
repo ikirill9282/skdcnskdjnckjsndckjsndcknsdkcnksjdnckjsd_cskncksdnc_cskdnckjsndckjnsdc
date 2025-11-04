@@ -86,10 +86,7 @@
 								width: 20px;
             }
         </style>
-        
-    </div>
-</x-filament-panels::page>
-<div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
             <div
                 class="min-w-max"
                 x-bind:style="`transform: scale(${tableScale}); transform-origin: top left; width: ${(100 / tableScale).toFixed(2)}%;`"
@@ -203,3 +200,5 @@
                 </table>
             </div>
         </div>
+    </div>
+</x-filament-panels::page>
