@@ -72,29 +72,6 @@
 
                 <div class="flex-1 overflow-hidden px-6 py-4">
                     <div class="flex h-full flex-col gap-4">
-                        {{-- Информация о станции --}}
-                        <div class="grid gap-4 md:grid-cols-3">
-                            <div class="rounded-lg border border-gray-200 bg-white px-6 py-4 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Номер станции</p>
-                                <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                                    {{ $this->getStationNumber() }}
-                                </p>
-                            </div>
-                            <div class="rounded-lg border border-gray-200 bg-white px-6 py-4 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Имя станции</p>
-                                <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                                    {{ $this->getStationName() }}
-                                </p>
-                            </div>
-                            <div class="flex items-center justify-center rounded-lg border border-gray-200 bg-white px-6 py-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                                @if ($logoUrl = $this->getStationLogoUrl())
-                                    <img src="{{ $logoUrl }}" alt="Логотип станции" class="max-h-16 object-contain">
-                                @else
-                                    <span class="text-sm text-gray-500 dark:text-gray-400">Логотип отсутствует</span>
-                                @endif
-                            </div>
-                        </div>
-
         {{-- Фильтр по датам --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
             <div class="flex gap-4 items-end">
@@ -262,10 +239,6 @@
                     @endforelse
                     </tbody>
                 </table>
-            </div>
-        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
