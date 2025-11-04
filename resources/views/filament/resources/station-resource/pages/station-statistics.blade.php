@@ -31,17 +31,6 @@
             </div>
         </div>
 
-        <div class="flex justify-end">
-            <x-filament::button
-                type="button"
-                color="primary"
-                icon="heroicon-o-arrows-pointing-out"
-                x-on:click="showStatisticsModal = true"
-            >
-                Открыть статистику
-            </x-filament::button>
-        </div>
-
         {{-- Фильтр по датам --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
             <div class="flex gap-4 items-end">
