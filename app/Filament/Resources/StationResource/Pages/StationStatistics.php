@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 class StationStatistics extends Page
 {
     use InteractsWithRecord;
+    use DisplaysStationHeading;
 
     protected static string $resource = StationResource::class;
 

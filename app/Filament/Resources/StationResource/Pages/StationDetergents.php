@@ -13,6 +13,7 @@ class StationDetergents extends Page
 {
     use InteractsWithRecord;
     use EnsuresStationManagementAccess;
+    use DisplaysStationHeading;
 
     protected static string $resource = StationResource::class;
 

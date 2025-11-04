@@ -8,6 +8,8 @@ use Filament\Resources\Pages\EditRecord;
 
 class EditStation extends EditRecord
 {
+    use DisplaysStationHeading;
+
     protected static string $resource = StationResource::class;
 
     protected function getHeaderActions(): array
