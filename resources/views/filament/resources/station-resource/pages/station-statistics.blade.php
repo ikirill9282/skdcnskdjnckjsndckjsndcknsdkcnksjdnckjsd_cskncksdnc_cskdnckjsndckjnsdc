@@ -312,7 +312,7 @@
                         </div>
 
                         {{-- Таблица статистики --}}
-                        <div class="statistics-modal-content__table bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+                        <div class="statistics-modal-content__table bg-white dark:bg-gray-800 rounded-lg shadow">
                             <div
                                 class="min-w-max"
                                 x-bind:style="`transform: scale(${modalTableScale}); transform-origin: top left; width: ${(100 / modalTableScale).toFixed(2)}%;`"
