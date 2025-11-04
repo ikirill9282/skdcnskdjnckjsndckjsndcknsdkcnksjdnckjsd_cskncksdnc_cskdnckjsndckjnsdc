@@ -180,11 +180,6 @@ class StationStatistics extends Page
         return $disk->url($logoPath);
     }
 
-    public function getMaxContentWidth(): MaxWidth|string|null
-    {
-        return MaxWidth::Full;
-    }
-
     protected function ensureAuthorized(): void
     {
         abort_unless(StationResource::userHasStationAccess($this->record), 403);
