@@ -10,3 +10,8 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+@layer components {
+    .station-statistics-page .fi-main {
+        max-width: none !important;
+    }
+}

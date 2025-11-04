@@ -23,6 +23,10 @@ class StationStatistics extends Page
 
     protected static ?string $title = 'Статистика';
 
+    protected array $extraBodyAttributes = [
+        'class' => 'station-statistics-page',
+    ];
+
     public $startDate;
     public $endDate;
 
