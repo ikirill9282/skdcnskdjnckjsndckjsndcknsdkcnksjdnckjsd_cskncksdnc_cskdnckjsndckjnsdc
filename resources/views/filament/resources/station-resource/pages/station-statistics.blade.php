@@ -7,6 +7,12 @@
             modalTableScale: 1,
             showStatisticsModal: false,
         }"
+        x-effect="
+            document.body.classList.toggle(
+                'statistics-modal-open',
+                showStatisticsModal
+            )
+        "
         class="space-y-4"
     >
         {{-- Информация о станции --}}
