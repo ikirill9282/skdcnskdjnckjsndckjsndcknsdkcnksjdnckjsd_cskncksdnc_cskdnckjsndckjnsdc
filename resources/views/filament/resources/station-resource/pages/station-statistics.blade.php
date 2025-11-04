@@ -250,7 +250,7 @@
                     </button>
                 </div>
 
-                <div class="statistics-modal-content__body flex-1 overflow-hidden px-6 py-4">
+                <div class="statistics-modal-content__body flex-1 px-6 py-4">
                     <div class="flex h-full flex-col gap-4">
                         {{-- Информация о станции --}}
                         <div class="grid gap-4 md:grid-cols-3">
