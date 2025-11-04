@@ -180,7 +180,7 @@ class StationStatistics extends Page
         return $disk->url($logoPath);
     }
 
-    protected function getMaxContentWidth(): MaxWidth|string|null
+    public function getMaxContentWidth(): MaxWidth|string|null
     {
         return MaxWidth::Full;
     }
