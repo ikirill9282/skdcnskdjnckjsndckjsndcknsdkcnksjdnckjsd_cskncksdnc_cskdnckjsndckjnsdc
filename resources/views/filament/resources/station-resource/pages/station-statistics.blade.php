@@ -1,7 +1,7 @@
 
 <x-filament-panels::page>
     @php($canManage = $this->canManageStatistics())
-    <div x-data="{ tableScale: 0.85 }" class="space-y-4">
+    <div x-data="{ tableScale: 1 }" class="space-y-4">
         {{-- Информация о станции --}}
         <div class="grid gap-4 md:grid-cols-3 overflow-hidden" style="height: 150px;">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 h-full overflow-hidden flex flex-col items-center justify-center text-center">
