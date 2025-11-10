@@ -123,7 +123,7 @@ class StationMachines extends Page
             if (StationSettingValueWriter::write(
                 $stationId,
                 $nameBlock,
-                3,
+                1,
                 (string) ($machine['name'] ?? ''),
             )) {
                 $changedBlocks[$nameBlock] = true;

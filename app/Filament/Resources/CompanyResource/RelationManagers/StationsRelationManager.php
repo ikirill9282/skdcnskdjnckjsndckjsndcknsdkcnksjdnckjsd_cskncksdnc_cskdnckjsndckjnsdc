@@ -66,8 +66,7 @@ class StationsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
-                    ->visible(fn (): bool => auth()->user()?->hasRole('super-admin') ?? false),
+                Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
