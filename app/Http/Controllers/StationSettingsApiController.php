@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Station;
 use App\Models\StationSettingValue;
 use App\Services\StationSettings\SettingBlockChangeTracker;
+use App\Services\StationSettings\StationSettingsAggregator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -150,6 +151,8 @@ class StationSettingsApiController extends Controller
                 ],
             );
         }
+
+        StationSettingsAggregator::sync($station);
 
         return response()->json([
             'status' => 'ok',
