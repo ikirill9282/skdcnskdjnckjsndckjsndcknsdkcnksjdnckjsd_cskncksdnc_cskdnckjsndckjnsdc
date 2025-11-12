@@ -168,7 +168,7 @@ class StationResource extends Resource
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasAnyRole(['super-admin', 'company-admin']) ?? false;
+        return auth()->user()?->hasRole('super-admin') ?? false;
     }
 
     public static function canEdit(Model $record): bool
