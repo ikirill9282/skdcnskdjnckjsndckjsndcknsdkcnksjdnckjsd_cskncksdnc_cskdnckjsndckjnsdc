@@ -16,7 +16,10 @@ return new class extends Migration
             $table->text('value');
             $table->timestamps();
 
-            $table->unique(['station_id', 'block_number', 'setting_index']);
+            $table->unique(
+                ['station_id', 'block_number', 'setting_index'],
+                'ssv_station_block_setting_unique'
+            );
         });
     }
 
