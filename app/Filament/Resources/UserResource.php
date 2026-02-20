@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
+use App\Models\Company;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -66,7 +67,8 @@ class UserResource extends Resource
 								
 								Forms\Components\Select::make('company_id')
 										->label('Компания')
-										->relationship('company', 'name')
+										->options(Company::pluck('name', 'id'))
+										->searchable()
 										->visible(fn (callable $get) => in_array($get('role'), ['company-admin', 'manager', 'client']))
 										->required(fn (callable $get) => in_array($get('role'), ['company-admin', 'manager', 'client'])),
 						]);

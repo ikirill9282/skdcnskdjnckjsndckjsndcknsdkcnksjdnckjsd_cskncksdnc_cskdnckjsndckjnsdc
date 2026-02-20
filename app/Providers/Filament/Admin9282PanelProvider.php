@@ -50,6 +50,7 @@ class Admin9282PanelProvider extends PanelProvider
             ->widgets([
                 UserStationsWidget::class,
             ])
+            ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(MaxWidth::Full)
             ->middleware([
                 EncryptCookies::class,
