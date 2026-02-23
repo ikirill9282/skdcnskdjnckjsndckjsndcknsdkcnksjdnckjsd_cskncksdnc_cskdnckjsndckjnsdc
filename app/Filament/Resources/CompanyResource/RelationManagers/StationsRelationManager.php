@@ -22,16 +22,16 @@ class StationsRelationManager extends RelationManager
                     ->required()
                     ->maxLength(255)
                     ->label('Номер станции'),
-                    
+
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255)
                     ->label('Название станции'),
-                    
+
                 Forms\Components\TextInput::make('region')
                     ->maxLength(255)
                     ->label('Регион'),
-                    
+
                 Forms\Components\Toggle::make('is_active')
                     ->default(true)
                     ->label('Активна'),
@@ -47,17 +47,17 @@ class StationsRelationManager extends RelationManager
                     ->label('Номер станции')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('name')
                     ->label('Название станции')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('region')
                     ->label('Регион')
                     ->searchable()
                     ->sortable(),
-                    
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Активна')
                     ->boolean(),
@@ -67,15 +67,22 @@ class StationsRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->visible(fn (): bool => auth()->user()?->hasRole('super-admin') ?? false),
+                    ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false)
+                    ->authorize(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false)
+                    ->authorize(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false)
+                    ->authorize(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false)
+                        ->authorize(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
                 ]),
             ]);
     }

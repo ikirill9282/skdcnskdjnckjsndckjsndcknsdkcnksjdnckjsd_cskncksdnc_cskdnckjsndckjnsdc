@@ -22,30 +22,26 @@ class UsersRelationManager extends RelationManager
                     ->required()
                     ->maxLength(255)
                     ->label('Имя'),
-                
+
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
                     ->maxLength(255)
                     ->label('Email'),
-                
+
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required(fn (string $operation): bool => $operation === 'create')
                     ->dehydrated(fn ($state) => filled($state))
                     ->maxLength(255)
                     ->label('Пароль'),
-                
+
                 Forms\Components\Select::make('roles')
                     ->label('Роль')
-                    ->options([
-                        'company-admin' => 'Администратор компании',
-                        'manager' => 'Менеджер',
-                        'client' => 'Клиент',
-                    ])
+                    ->options(fn (): array => $this->roleOptions())
                     ->multiple()
                     ->required(),
-                
+
                 Forms\Components\Select::make('stations')
                     ->label('Станции')
                     ->relationship('stations', 'name', function ($query) {
@@ -92,7 +88,7 @@ class UsersRelationManager extends RelationManager
                         if (isset($data['roles'])) {
                             $record->syncRoles($data['roles']);
                         }
-                        
+
                         // Привязываем станции
                         if (isset($data['stations'])) {
                             $record->stations()->sync($data['stations']);
@@ -115,7 +111,7 @@ class UsersRelationManager extends RelationManager
                         if (isset($data['roles'])) {
                             $record->syncRoles($data['roles']);
                         }
-                        
+
                         // Синхронизируем станции
                         if (isset($data['stations'])) {
                             $record->stations()->sync($data['stations']);
@@ -134,5 +130,35 @@ class UsersRelationManager extends RelationManager
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function roleOptions(): array
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return [];
+        }
+
+        if ($user->isSuperAdmin()) {
+            return [
+                'admin' => 'Администратор',
+                'company-admin' => 'Администратор компании',
+                'manager' => 'Менеджер',
+                'client' => 'Клиент',
+            ];
+        }
+
+        if ($user->isBusinessAdmin()) {
+            return [
+                'manager' => 'Менеджер',
+                'client' => 'Клиент',
+            ];
+        }
+
+        return [];
     }
 }

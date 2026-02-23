@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CompanyResource\Pages;
 use App\Filament\Resources\CompanyResource\RelationManagers;
 use App\Models\Company;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -18,23 +19,24 @@ class CompanyResource extends Resource
     protected static ?string $model = Company::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
-    
+
     protected static ?string $navigationLabel = 'Компании';
 
     public static function shouldRegisterNavigation(): bool
     {
+        /** @var User|null $user */
         $user = auth()->user();
 
         if (! $user) {
             return false;
         }
 
-        if ($user->hasRole('super-admin')) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 
-        if ($user->hasRole('company-admin')) {
-            return $user->companies()->exists();
+        if ($user->isBusinessAdmin()) {
+            return $user->businessCompanyIds() !== [];
         }
 
         return false;
@@ -42,13 +44,22 @@ class CompanyResource extends Resource
 
     public static function canAccess(): bool
     {
+        /** @var User|null $user */
         $user = auth()->user();
 
         if (! $user) {
             return false;
         }
 
-        return $user->hasAnyRole(['super-admin', 'company-admin']);
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        if ($user->isBusinessAdmin()) {
+            return $user->businessCompanyIds() !== [];
+        }
+
+        return false;
     }
 
     public static function form(Form $form): Form
@@ -78,22 +89,22 @@ class CompanyResource extends Resource
                     ->circular()
                     ->defaultImageUrl(url('/images/default-company.png'))
                     ->label('Логотип'),
-                    
+
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable()
                     ->label('Название компании'),
-                    
+
                 Tables\Columns\TextColumn::make('users_count')
                     ->counts('users')
                     ->label('Количество сотрудников')
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('stations_count')
                     ->counts('stations')
                     ->label('Количество станций')
                     ->sortable(),
-                    
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -104,14 +115,15 @@ class CompanyResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
                 Tables\Actions\DeleteAction::make()
-                    ->visible(fn (): bool => auth()->user()?->hasRole('super-admin') ?? false),
+                    ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn (): bool => auth()->user()?->hasRole('super-admin') ?? false),
+                        ->visible(fn (): bool => auth()->user()?->isSuperAdmin() ?? false),
                 ]),
             ])
             ->defaultSort('name', 'asc');
@@ -119,39 +131,49 @@ class CompanyResource extends Resource
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->hasRole('super-admin') ?? false;
+        return auth()->user()?->isSuperAdmin() ?? false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()?->isSuperAdmin() ?? false;
     }
 
     public static function canDelete(Model $record): bool
     {
-        return auth()->user()?->hasRole('super-admin') ?? false;
+        return auth()->user()?->isSuperAdmin() ?? false;
     }
 
     public static function canDeleteAny(): bool
     {
-        return auth()->user()?->hasRole('super-admin') ?? false;
+        return auth()->user()?->isSuperAdmin() ?? false;
     }
 
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
+        /** @var User|null $user */
         $user = auth()->user();
 
         if (! $user) {
             return $query->whereRaw('1 = 0');
         }
 
-        if ($user->hasRole('company-admin')) {
-            $companyIds = $user->companies()->pluck('companies.id')->toArray();
+        if ($user->isSuperAdmin()) {
+            return $query;
+        }
+
+        if ($user->isBusinessAdmin()) {
+            $companyIds = $user->businessCompanyIds();
 
             if (empty($companyIds)) {
                 return $query->whereRaw('1 = 0');
             }
 
-            $query->whereIn('id', $companyIds);
+            return $query->whereIn('id', $companyIds);
         }
 
-        return $query;
+        return $query->whereRaw('1 = 0');
     }
 
     public static function getPages(): array
@@ -162,11 +184,12 @@ class CompanyResource extends Resource
             'edit' => Pages\EditCompany::route('/{record}/edit'),
         ];
     }
-		public static function getRelations(): array
-		{
-				return [
-						RelationManagers\StationsRelationManager::class,
-						RelationManagers\UsersRelationManager::class,
-				];
-		}
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\StationsRelationManager::class,
+            RelationManagers\UsersRelationManager::class,
+        ];
+    }
 }

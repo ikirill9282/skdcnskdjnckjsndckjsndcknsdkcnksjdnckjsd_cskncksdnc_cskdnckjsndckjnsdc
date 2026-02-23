@@ -6,6 +6,7 @@ use App\Filament\Resources\StationResource;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class StationParameters extends Page
 {
@@ -29,6 +30,8 @@ class StationParameters extends Page
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
+
+        abort_unless(Auth::user()?->isSuperAdmin(), 403);
 
         $this->ensureStationManagementAccess();
         

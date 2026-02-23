@@ -4,12 +4,15 @@ namespace App\Filament\Resources\StationResource\Pages;
 
 use App\Filament\Resources\StationResource;
 use App\Models\Statistic;
+use App\Services\Statistics\StationPeriodStatisticsReportBuilder;
+use App\Services\Statistics\StationStatisticsXlsxExporter;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Notifications\Notification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class StationStatistics extends Page
 {
@@ -42,6 +45,65 @@ class StationStatistics extends Page
             ->whereBetween('date', [$this->startDate, $this->endDate])
             ->orderBy('date', 'desc')
             ->get();
+    }
+
+    public function exportPeriodXlsx(): ?BinaryFileResponse
+    {
+        $this->ensureAuthorized();
+
+        if (blank($this->startDate) || blank($this->endDate)) {
+            Notification::make()
+                ->title('Заполните период выгрузки')
+                ->danger()
+                ->send();
+
+            return null;
+        }
+
+        try {
+            $start = Carbon::parse((string) $this->startDate)->startOfDay();
+            $end = Carbon::parse((string) $this->endDate)->endOfDay();
+        } catch (\Throwable $exception) {
+            Notification::make()
+                ->title('Некорректный формат даты')
+                ->danger()
+                ->send();
+
+            return null;
+        }
+
+        if ($start->gt($end)) {
+            Notification::make()
+                ->title('Дата начала не может быть позже даты окончания')
+                ->danger()
+                ->send();
+
+            return null;
+        }
+
+        try {
+            $reportBuilder = app(StationPeriodStatisticsReportBuilder::class);
+            $exporter = app(StationStatisticsXlsxExporter::class);
+
+            $report = $reportBuilder->build($this->record, $start, $end);
+            $file = $exporter->export(
+                $report,
+                (string) ($this->record->code ?? $this->record->id),
+                $start,
+                $end,
+            );
+        } catch (\Throwable $exception) {
+            Notification::make()
+                ->title('Не удалось сформировать XLSX')
+                ->danger()
+                ->send();
+
+            return null;
+        }
+
+        return response()
+            ->download($file['path'], $file['filename'])
+            ->deleteFileAfterSend(true);
     }
 
     public function deleteStatistic($id)
@@ -149,7 +211,7 @@ class StationStatistics extends Page
             return false;
         }
 
-        return $user->hasAnyRole(['super-admin', 'company-admin', 'manager']);
+        return $user->isSuperAdmin() || $user->isBusinessAdmin() || $user->isManager();
     }
 
     public function getStationNumber(): string

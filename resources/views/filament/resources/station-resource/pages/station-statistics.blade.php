@@ -40,7 +40,7 @@
 
         {{-- Фильтр по датам --}}
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-            <div class="flex gap-4 items-end">
+            <div class="flex flex-wrap gap-4 items-end">
                 <div>
                     <label class="block text-sm font-medium mb-2">выбор периода с</label>
                     <input 
@@ -56,6 +56,17 @@
                         wire:model.live="endDate"
                         class="rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
                     >
+                </div>
+                <div class="pb-0.5">
+                    <x-filament::button
+                        type="button"
+                        icon="heroicon-o-arrow-down-tray"
+                        wire:click="exportPeriodXlsx"
+                        wire:loading.attr="disabled"
+                        wire:target="exportPeriodXlsx"
+                    >
+                        Экспорт XLSX
+                    </x-filament::button>
                 </div>
             </div>
         </div>
@@ -283,7 +294,7 @@
 
                         {{-- Фильтр по датам --}}
                         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-                            <div class="flex gap-4 items-end">
+                            <div class="flex flex-wrap gap-4 items-end">
                                 <div>
                                     <label class="block text-sm font-medium mb-2">выбор периода с</label>
                                     <input
@@ -299,6 +310,17 @@
                                         wire:model.live="endDate"
                                         class="rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
                                     >
+                                </div>
+                                <div class="pb-0.5">
+                                    <x-filament::button
+                                        type="button"
+                                        icon="heroicon-o-arrow-down-tray"
+                                        wire:click="exportPeriodXlsx"
+                                        wire:loading.attr="disabled"
+                                        wire:target="exportPeriodXlsx"
+                                    >
+                                        Экспорт XLSX
+                                    </x-filament::button>
                                 </div>
                             </div>
                         </div>

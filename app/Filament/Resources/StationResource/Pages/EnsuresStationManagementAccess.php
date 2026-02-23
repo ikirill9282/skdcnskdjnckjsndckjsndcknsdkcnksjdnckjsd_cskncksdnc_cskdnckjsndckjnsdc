@@ -11,7 +11,6 @@ trait EnsuresStationManagementAccess
     {
         abort_unless(StationResource::userHasStationAccess($this->record), 403);
 
-        abort_if(Auth::user()?->hasRole('client'), 403);
+        abort_if(Auth::user()?->isClient(), 403);
     }
 }
-

@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Resources\StationResource;
 use App\Models\Station;
+use App\Models\User;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -61,18 +62,19 @@ class UserStationsWidget extends TableWidget
             ->with('company')
             ->orderBy('name');
 
+        /** @var User|null $user */
         $user = auth()->user();
 
         if (! $user) {
             return $query->whereRaw('1 = 0');
         }
 
-        if ($user->hasRole('super-admin')) {
+        if ($user->isSuperAdmin()) {
             return $query;
         }
 
-        if ($user->hasRole('company-admin')) {
-            $companyIds = $user->companies()->pluck('companies.id')->all();
+        if ($user->isBusinessAdmin()) {
+            $companyIds = $user->businessCompanyIds();
 
             if (empty($companyIds)) {
                 return $query->whereRaw('1 = 0');
@@ -81,7 +83,7 @@ class UserStationsWidget extends TableWidget
             return $query->whereIn('company_id', $companyIds);
         }
 
-        if ($user->hasAnyRole(['manager', 'client'])) {
+        if ($user->isManager() || $user->isClient()) {
             $stationIds = $user->stations()->pluck('stations.id')->all();
 
             if (empty($stationIds)) {
@@ -96,17 +98,18 @@ class UserStationsWidget extends TableWidget
 
     protected function resolveStationUrl(Station $station): string
     {
+        /** @var User|null $user */
         $user = auth()->user();
 
         if (! $user) {
             return '#';
         }
 
-        if ($user->hasRole('client')) {
+        if ($user->isClient()) {
             return StationResource::getUrl('statistics', ['record' => $station]);
         }
 
-        if ($user->hasRole('manager')) {
+        if ($user->isManager()) {
             return StationResource::getUrl('status', ['record' => $station]);
         }
 
