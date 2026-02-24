@@ -84,6 +84,10 @@ class EditUser extends EditRecord
             ]);
         }
 
+        if ($actor->isSuperAdmin()) {
+            return;
+        }
+
         if (! $actor->isBusinessAdmin()) {
             return;
         }

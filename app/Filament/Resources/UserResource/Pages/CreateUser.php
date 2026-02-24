@@ -61,6 +61,10 @@ class CreateUser extends CreateRecord
             ]);
         }
 
+        if ($actor->isSuperAdmin()) {
+            return;
+        }
+
         if (! $actor->isBusinessAdmin()) {
             return;
         }
