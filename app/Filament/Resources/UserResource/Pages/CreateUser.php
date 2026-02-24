@@ -4,6 +4,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
 use App\Models\Company;
+use App\Models\Station;
 use App\Models\User;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Validation\ValidationException;
@@ -35,6 +36,11 @@ class CreateUser extends CreateRecord
         if ($role) {
             $this->record->assignRole($role);
         }
+
+        $stationIds = $this->data['station_ids'] ?? [];
+        if (in_array($role, ['manager', 'client'], true) && ! empty($stationIds)) {
+            $this->record->stations()->sync($stationIds);
+        }
     }
 
     protected function guardPayload(User $actor, array $data): void
@@ -62,6 +68,8 @@ class CreateUser extends CreateRecord
         }
 
         if ($actor->isSuperAdmin()) {
+            $this->guardStations($data, $companyId);
+
             return;
         }
 
@@ -84,6 +92,28 @@ class CreateUser extends CreateRecord
         if (! $companyId || ! in_array($companyId, $allowedCompanyIds, true)) {
             throw ValidationException::withMessages([
                 'company_id' => 'Можно выбрать только компанию из вашего доступа.',
+            ]);
+        }
+
+        $this->guardStations($data, $companyId);
+    }
+
+    protected function guardStations(array $data, ?int $companyId): void
+    {
+        $stationIds = $data['station_ids'] ?? [];
+
+        if (empty($stationIds) || ! $companyId) {
+            return;
+        }
+
+        $validCount = Station::query()
+            ->whereIn('id', $stationIds)
+            ->where('company_id', $companyId)
+            ->count();
+
+        if ($validCount !== count($stationIds)) {
+            throw ValidationException::withMessages([
+                'station_ids' => 'Некоторые станции не принадлежат выбранной компании.',
             ]);
         }
     }

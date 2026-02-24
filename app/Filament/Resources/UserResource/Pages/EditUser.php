@@ -4,6 +4,7 @@ namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
 use App\Models\Company;
+use App\Models\Station;
 use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
@@ -28,6 +29,7 @@ class EditUser extends EditRecord
 
         $data['company_id'] = $this->record->companies()->first()?->id;
         $data['role'] = $this->record->roles->first()?->name;
+        $data['station_ids'] = $this->record->stations()->pluck('stations.id')->all();
 
         return $data;
     }
@@ -58,6 +60,13 @@ class EditUser extends EditRecord
         if ($role) {
             $this->record->syncRoles([$role]);
         }
+
+        $stationIds = $this->data['station_ids'] ?? [];
+        if (in_array($role, ['manager', 'client'], true)) {
+            $this->record->stations()->sync($stationIds);
+        } else {
+            $this->record->stations()->detach();
+        }
     }
 
     protected function guardPayload(User $actor, array $data): void
@@ -85,6 +94,8 @@ class EditUser extends EditRecord
         }
 
         if ($actor->isSuperAdmin()) {
+            $this->guardStations($data, $companyId);
+
             return;
         }
 
@@ -107,6 +118,28 @@ class EditUser extends EditRecord
         if (! $companyId || ! in_array($companyId, $allowedCompanyIds, true)) {
             throw ValidationException::withMessages([
                 'company_id' => 'Можно выбрать только компанию из вашего доступа.',
+            ]);
+        }
+
+        $this->guardStations($data, $companyId);
+    }
+
+    protected function guardStations(array $data, ?int $companyId): void
+    {
+        $stationIds = $data['station_ids'] ?? [];
+
+        if (empty($stationIds) || ! $companyId) {
+            return;
+        }
+
+        $validCount = Station::query()
+            ->whereIn('id', $stationIds)
+            ->where('company_id', $companyId)
+            ->count();
+
+        if ($validCount !== count($stationIds)) {
+            throw ValidationException::withMessages([
+                'station_ids' => 'Некоторые станции не принадлежат выбранной компании.',
             ]);
         }
     }

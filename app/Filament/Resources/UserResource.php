@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\Company;
+use App\Models\Station;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -96,7 +97,32 @@ class UserResource extends Resource
                     ->searchable()
                     ->preload()
                     ->visible(fn (callable $get): bool => in_array($get('role'), ['admin', 'company-admin', 'manager', 'client'], true))
-                    ->required(fn (callable $get): bool => in_array($get('role'), ['admin', 'company-admin', 'manager', 'client'], true)),
+                    ->required(fn (callable $get): bool => in_array($get('role'), ['admin', 'company-admin', 'manager', 'client'], true))
+                    ->live()
+                    ->afterStateUpdated(fn (callable $set) => $set('station_ids', [])),
+
+                Forms\Components\Select::make('station_ids')
+                    ->label('Станции')
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
+                    ->options(function (callable $get): array {
+                        $companyId = $get('company_id');
+
+                        if (! $companyId) {
+                            return [];
+                        }
+
+                        return Station::query()
+                            ->where('company_id', $companyId)
+                            ->orderBy('name')
+                            ->get()
+                            ->mapWithKeys(fn (Station $station) => [
+                                $station->id => $station->name . ' (' . $station->code . ')',
+                            ])
+                            ->all();
+                    })
+                    ->visible(fn (callable $get): bool => in_array($get('role'), ['manager', 'client'], true) && filled($get('company_id'))),
             ]);
     }
 
