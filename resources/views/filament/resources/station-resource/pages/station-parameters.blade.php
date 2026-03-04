@@ -79,9 +79,11 @@
 
             {{-- Кнопка сохранить --}}
             <div class="flex justify-end">
-                <button 
-                    type="submit" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg bg-primary-600"
+                <button
+                    type="submit"
+                    style="background-color: #dc2626; color: #fff; font-weight: 700; padding: 0.5rem 1.5rem; border-radius: 0.5rem; border: none; cursor: pointer; text-transform: uppercase;"
+                    onmouseover="this.style.backgroundColor='#b91c1c'"
+                    onmouseout="this.style.backgroundColor='#dc2626'"
                 >
                     Сохранить
                 </button>

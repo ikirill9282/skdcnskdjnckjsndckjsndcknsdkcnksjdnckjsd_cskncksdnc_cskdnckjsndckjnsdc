@@ -75,9 +75,11 @@
 
             {{-- Кнопка сохранить --}}
             <div class="mt-6">
-                <button 
-                    type="submit" 
-                    class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg bg-primary-600"
+                <button
+                    type="submit"
+                    style="width: 100%; background-color: #dc2626; color: #fff; font-weight: 700; padding: 0.75rem; border-radius: 0.5rem; border: none; cursor: pointer; text-transform: uppercase;"
+                    onmouseover="this.style.backgroundColor='#b91c1c'"
+                    onmouseout="this.style.backgroundColor='#dc2626'"
                 >
                     сохранить
                 </button>
