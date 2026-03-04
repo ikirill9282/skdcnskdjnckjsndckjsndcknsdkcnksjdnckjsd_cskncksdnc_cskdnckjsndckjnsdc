@@ -67,9 +67,11 @@
                 <div class="flex justify-end">
                     <button
                         type="submit"
-                        class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg"
+                        style="background-color: #dc2626; color: #fff; font-weight: 700; padding: 0.5rem 1.5rem; border-radius: 0.5rem; border: none; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em;"
+                        onmouseover="this.style.backgroundColor='#b91c1c'"
+                        onmouseout="this.style.backgroundColor='#dc2626'"
                     >
-                        Подать средство
+                        Отправить средство
                     </button>
                 </div>
             </form>
