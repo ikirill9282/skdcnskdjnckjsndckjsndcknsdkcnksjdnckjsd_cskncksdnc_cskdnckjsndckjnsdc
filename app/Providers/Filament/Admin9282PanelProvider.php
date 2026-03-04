@@ -18,7 +18,9 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
+use App\Models\Company;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Navigation\NavigationBuilder;
 use Filament\Navigation\NavigationGroup;
@@ -78,32 +80,72 @@ class Admin9282PanelProvider extends PanelProvider
 
     protected function resolveBrandLogo(): ?HtmlString
     {
-        $logoPath = public_path('images/lfs-logo.png');
+        $company = $this->resolveBrandCompany();
 
-        if (file_exists($logoPath)) {
-            $logoUrl = asset('images/lfs-logo.png');
-
-            return new HtmlString(
-                '<img src="' . e($logoUrl) . '" alt="LFS" class="h-8">'
-            );
+        if (! $company || blank($company->logo)) {
+            return null;
         }
 
-        return null;
+        $disk = Storage::disk('public');
+
+        if (! $disk->exists($company->logo)) {
+            return null;
+        }
+
+        $logoUrl = $disk->url($company->logo);
+
+        return new HtmlString(
+            '<img src="' . e($logoUrl) . '" alt="' . e($company->name ?? 'Логотип') . '" class="h-8">'
+        );
     }
 
     protected function resolveBrandName(): string
     {
+        $company = $this->resolveBrandCompany();
+
+        if ($company && filled($company->name)) {
+            return $company->name;
+        }
+
         return 'LFS';
+    }
+
+    protected function resolveBrandCompany(): ?Company
+    {
+        static $resolved = false;
+        static $company;
+
+        if ($resolved) {
+            return $company;
+        }
+
+        $resolved = true;
+
+        $user = auth()->user();
+
+        if (! $user) {
+            return $company = null;
+        }
+
+        return $company = $user->companies()
+            ->orderBy('companies.created_at')
+            ->first();
     }
 
     protected function resolveBrandFaviconUrl(): ?string
     {
-        $logoPath = public_path('images/lfs-logo.png');
+        $company = $this->resolveBrandCompany();
 
-        if (file_exists($logoPath)) {
-            return asset('images/lfs-logo.png');
+        if (! $company || blank($company->logo)) {
+            return null;
         }
 
-        return null;
+        $disk = Storage::disk('public');
+
+        if (! $disk->exists($company->logo)) {
+            return null;
+        }
+
+        return $disk->url($company->logo);
     }
 }

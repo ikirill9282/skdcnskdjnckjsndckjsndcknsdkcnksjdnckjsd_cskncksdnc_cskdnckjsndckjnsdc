@@ -31,9 +31,10 @@
         height: 2rem;
     }
 
-    /* Скрыть логотип в сайдбаре */
-    .fi-sidebar-header .fi-logo {
-        display: none;
+    /* Скрыть логотип/бренд в сайдбаре — показываем только в topbar по центру */
+    .fi-sidebar-header .fi-logo,
+    .fi-sidebar-header a[href] {
+        display: none !important;
     }
 
     /* Кнопки действий (создать/сохранить/удалить) — красные */
