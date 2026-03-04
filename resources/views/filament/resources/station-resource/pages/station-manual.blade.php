@@ -40,6 +40,8 @@
                             wire:model="ml"
                             class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
                             placeholder="0"
+                            onkeydown="if(event.key==='.'||event.key===','||event.key==='e'||event.key==='E')event.preventDefault()"
+                            oninput="this.value=this.value.replace(/[^0-9]/g,'')"
                         >
                         @error('ml') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>

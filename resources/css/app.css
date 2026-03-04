@@ -14,17 +14,19 @@
 @layer components {
     /* Логотип по центру topbar */
     .fi-topbar nav {
-        position: relative;
+        position: relative !important;
     }
 
     .fi-topbar-brand-logo {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        align-items: center;
-        height: 100%;
-        pointer-events: auto;
+        position: absolute !important;
+        left: 50% !important;
+        top: 0 !important;
+        transform: translateX(-50%) !important;
+        display: flex !important;
+        align-items: center !important;
+        height: 100% !important;
+        pointer-events: auto !important;
+        z-index: 10 !important;
     }
 
     .fi-topbar-brand-logo img {
@@ -32,8 +34,7 @@
     }
 
     /* Скрыть логотип/бренд в сайдбаре — показываем только в topbar по центру */
-    .fi-sidebar-header .fi-logo,
-    .fi-sidebar-header a[href] {
+    .fi-sidebar-header > div:first-child {
         display: none !important;
     }
 
