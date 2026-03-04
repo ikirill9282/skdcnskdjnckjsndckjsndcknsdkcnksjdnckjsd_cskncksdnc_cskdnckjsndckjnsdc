@@ -58,9 +58,10 @@ class Admin9282PanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::TOPBAR_START,
                 fn (): HtmlString => new HtmlString(
-                    '<div class="fi-topbar-brand-logo">' .
+                    '<div style="position:absolute;left:50%;top:0;transform:translateX(-50%);display:flex;align-items:center;height:100%;z-index:10;pointer-events:auto;">' .
                     ($this->resolveBrandLogo()?->toHtml() ?? e($this->resolveBrandName())) .
-                    '</div>'
+                    '</div>' .
+                    '<script>document.currentScript.parentElement.style.position="relative";</script>'
                 ),
             )
             ->middleware([
