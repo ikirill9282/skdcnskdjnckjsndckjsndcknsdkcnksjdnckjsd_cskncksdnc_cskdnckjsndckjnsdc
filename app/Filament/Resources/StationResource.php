@@ -89,6 +89,8 @@ class StationResource extends Resource
                 Forms\Components\TextInput::make('code')
                     ->required()
                     ->maxLength(255)
+                    ->disabled(fn (): bool => ! (auth()->user()?->isSuperAdmin() ?? false))
+                    ->dehydrated(fn (): bool => auth()->user()?->isSuperAdmin() ?? false)
                     ->label('Номер станции'),
 
                 Forms\Components\TextInput::make('name')
