@@ -38,7 +38,7 @@ class Admin9282PanelProvider extends PanelProvider
             ->login()
             ->brandName(fn (): string => $this->resolveBrandName())
             ->brandLogo(fn (): ?HtmlString => $this->resolveBrandLogo())
-            ->favicon('/favicon.ico')
+            ->favicon('/lfs-favicon.svg')
             ->font('Comfortaa')
             ->colors([
                 'primary' => Color::Blue,

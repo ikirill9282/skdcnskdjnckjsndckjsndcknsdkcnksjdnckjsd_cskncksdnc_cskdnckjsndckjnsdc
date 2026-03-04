@@ -11,6 +11,12 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+@layer base {
+    html {
+        font-size: 12px !important;
+    }
+}
+
 @layer components {
     /* Логотип по центру topbar */
     .fi-topbar nav {
