@@ -109,6 +109,8 @@ class StationResource extends Resource
 
                 Forms\Components\Toggle::make('is_active')
                     ->default(true)
+                    ->disabled()
+                    ->dehydrated(false)
                     ->label('Активна'),
             ]);
     }

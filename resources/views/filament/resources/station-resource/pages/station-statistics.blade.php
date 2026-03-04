@@ -16,28 +16,28 @@
         class="space-y-4"
     >
         {{-- Информация о станции --}}
-        <div class="grid gap-4 md:grid-cols-4 overflow-hidden" style="height: 150px;">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 h-full overflow-hidden flex flex-col items-center justify-center text-center">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; height: 120px;">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col items-center justify-center text-center">
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Номер станции</p>
                 <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                     {{ $this->getStationNumber() }}
                 </p>
             </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 h-full overflow-hidden flex flex-col items-center justify-center text-center">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col items-center justify-center text-center">
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Имя станции</p>
                 <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                     {{ $this->getStationName() }}
                 </p>
             </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 h-full overflow-hidden flex flex-col items-center justify-center text-center">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col items-center justify-center text-center">
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Регион</p>
                 <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                     {{ $this->getStationRegion() }}
                 </p>
             </div>
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col items-center justify-center h-full overflow-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col items-center justify-center overflow-hidden">
                 @if ($logoUrl = $this->getStationLogoUrl())
-                    <img src="{{ $logoUrl }}" alt="Логотип станции" class="max-h-16 object-contain" style="max-height: 100%;object-fit: contain;">
+                    <img src="{{ $logoUrl }}" alt="Логотип станции" style="max-height: 80px; object-fit: contain;">
                 @else
                     <span class="text-sm text-gray-500 dark:text-gray-400">Логотип отсутствует</span>
                 @endif
@@ -270,28 +270,28 @@
                 <div class="statistics-modal-content__body flex-1 px-6 py-4" style="overflow: scroll">
                     <div class="flex h-full flex-col gap-4" style="overflow: scroll">
                         {{-- Информация о станции --}}
-                        <div class="grid gap-4 md:grid-cols-4">
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 h-full overflow-hidden flex flex-col items-center justify-center text-center" style="max-height: 100px;">
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; height: 100px;">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col items-center justify-center text-center">
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Номер станции</p>
                                 <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                                     {{ $this->getStationNumber() }}
                                 </p>
                             </div>
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 h-full overflow-hidden flex flex-col items-center justify-center text-center" style="max-height: 100px;">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col items-center justify-center text-center">
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Имя станции</p>
                                 <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                                     {{ $this->getStationName() }}
                                 </p>
                             </div>
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 h-full overflow-hidden flex flex-col items-center justify-center text-center" style="max-height: 100px;">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col items-center justify-center text-center">
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Регион</p>
                                 <p class="text-xl font-semibold text-gray-900 dark:text-gray-100">
                                     {{ $this->getStationRegion() }}
                                 </p>
                             </div>
-                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col items-center justify-center h-full overflow-hidden" style="max-height: 100px;">
+                            <div class="bg-white dark:bg-gray-800 rounded-lg shadow px-6 py-4 flex flex-col items-center justify-center overflow-hidden">
                                 @if ($logoUrl = $this->getStationLogoUrl())
-                                    <img src="{{ $logoUrl }}" alt="Логотип станции" class="max-h-16 object-contain" style="max-height: 100%;object-fit: contain;">
+                                    <img src="{{ $logoUrl }}" alt="Логотип станции" style="max-height: 70px; object-fit: contain;">
                                 @else
                                     <span class="text-sm text-gray-500 dark:text-gray-400">Логотип отсутствует</span>
                                 @endif
