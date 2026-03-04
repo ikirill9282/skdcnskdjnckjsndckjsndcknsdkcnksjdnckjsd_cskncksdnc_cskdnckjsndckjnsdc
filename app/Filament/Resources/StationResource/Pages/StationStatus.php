@@ -3,11 +3,8 @@
 namespace App\Filament\Resources\StationResource\Pages;
 
 use App\Filament\Resources\StationResource;
-use App\Services\StationSettings\SettingBlockChangeTracker;
-use App\Services\StationSettings\StationSettingValueWriter;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
-use Filament\Notifications\Notification;
 
 class StationStatus extends Page
 {
@@ -67,33 +64,6 @@ class StationStatus extends Page
         );
     }
 
-    public function save()
-    {
-        $this->validate([
-            'status' => 'required|string|max:255',
-            'detergent' => 'required|string|max:255',
-            'volume' => 'required|numeric|min:0',
-            'washing_machine' => 'required|string|max:255',
-            'process_completion' => 'required|numeric|min:0|max:100',
-        ]);
-
-        // Сохраняем данные в модель Station
-        $this->record->update([
-            'current_status' => $this->status,
-            'current_detergent' => $this->detergent,
-            'current_volume' => $this->volume,
-            'current_washing_machine' => $this->washing_machine,
-            'current_process_completion' => $this->process_completion,
-        ]);
-
-        $this->syncSettingsBlock();
-
-        Notification::make()
-            ->title('Сохранено')
-            ->success()
-            ->send();
-    }
-
     protected function loadSettingsBlock(): void
     {
         $this->record->loadMissing('settingValues');
@@ -121,41 +91,6 @@ class StationStatus extends Page
         }
 
         return $default;
-    }
-
-    protected function syncSettingsBlock(): void
-    {
-        $stationId = $this->record->id;
-        $changedBlocks = [];
-
-        $map = [
-            1 => $this->status,
-            2 => $this->detergent,
-            3 => $this->volume,
-            4 => $this->washing_machine,
-            5 => $this->process_completion,
-        ];
-
-        foreach ($map as $index => $value) {
-            if (StationSettingValueWriter::write(
-                $stationId,
-                306,
-                $index,
-                (string) $value,
-            )) {
-                $changedBlocks[306] = true;
-            }
-        }
-
-        $blockNumbers = $changedBlocks !== []
-            ? array_keys($changedBlocks)
-            : [306];
-
-        SettingBlockChangeTracker::markBlocksChanged(
-            $stationId,
-            $blockNumbers,
-            'status'
-        );
     }
 
     protected function coerceNumeric(mixed $value, float $default = 0): float

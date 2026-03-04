@@ -86,7 +86,6 @@ class CompanyResource extends Resource
                 Tables\Columns\ImageColumn::make('logo')
                     ->disk('public')
                     ->size(60)
-                    ->circular()
                     ->defaultImageUrl(url('/images/default-company.png'))
                     ->label('Логотип'),
 

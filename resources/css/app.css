@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap');
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -6,11 +7,43 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Comfortaa', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 @layer components {
+    /* Логотип по центру topbar */
+    .fi-topbar nav {
+        position: relative;
+    }
+
+    .fi-topbar-brand-logo {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        height: 100%;
+        pointer-events: auto;
+    }
+
+    .fi-topbar-brand-logo img {
+        height: 2rem;
+    }
+
+    /* Скрыть логотип в сайдбаре */
+    .fi-sidebar-header .fi-logo {
+        display: none;
+    }
+
+    /* Кнопки действий (создать/сохранить/удалить) — красные */
+    .fi-page-header-actions .fi-btn,
+    .fi-form-actions .fi-btn {
+        --c-400: var(--color-red-400) !important;
+        --c-500: var(--color-red-500) !important;
+        --c-600: var(--color-red-600) !important;
+    }
+
     body.statistics-modal-open {
         overflow: hidden;
     }

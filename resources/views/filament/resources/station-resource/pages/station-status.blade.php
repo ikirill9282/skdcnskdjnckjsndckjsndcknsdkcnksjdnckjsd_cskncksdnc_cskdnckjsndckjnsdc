@@ -1,93 +1,47 @@
 
 <x-filament-panels::page>
-    <form
-        wire:submit.prevent="save"
-        onsubmit="return confirm('Вы уверены, что хотите сохранить изменения?')"
-        class="space-y-6"
-    >
+    <div class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
+
             {{-- Статус станции --}}
-            <div>
-                <label for="status" class="block text-sm font-medium mb-2">Статус станции</label>
-                <input 
-                    type="text" 
-                    id="status" 
-                    wire:model="status" 
-                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                    placeholder="Введите статус"
-                >
-                @error('status') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Статус станции</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {{ $status ?: '—' }}
+                </p>
             </div>
 
             {{-- Средство --}}
-            <div>
-                <label for="detergent" class="block text-sm font-medium mb-2">Средство</label>
-                <input 
-                    type="text" 
-                    id="detergent" 
-                    wire:model="detergent" 
-                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                    placeholder="Введите название средства"
-                >
-                @error('detergent') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Средство</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {{ $detergent ?: '—' }}
+                </p>
             </div>
 
             {{-- Объем --}}
-            <div>
-                <label for="volume" class="block text-sm font-medium mb-2">Объем (л)</label>
-                <input 
-                    type="text" 
-                    step="0.01"
-                    id="volume" 
-                    wire:model="volume" 
-                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                    placeholder="0.00"
-                >
-                @error('volume') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Объем (л)</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {{ $volume }}
+                </p>
             </div>
 
             {{-- Стиральная машина --}}
-            <div>
-                <label for="washing_machine" class="block text-sm font-medium mb-2">Стиральная машина</label>
-                <input 
-                    type="text" 
-                    id="washing_machine" 
-                    wire:model="washing_machine" 
-                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                    placeholder="Введите номер или название"
-                >
-                @error('washing_machine') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Стиральная машина</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {{ $washing_machine ?: '—' }}
+                </p>
             </div>
 
             {{-- Процесс выполнения --}}
-            <div class="md:col-span-2">
-                <label for="process_completion" class="block text-sm font-medium mb-2">Процесс выполнения (%)</label>
-                <input 
-                    type="text" 
-                    id="process_completion" 
-                    wire:model="process_completion" 
-                    min="0"
-                    max="100"
-                    readonly
-                    class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900"
-                    placeholder="0"
-                >
-                @error('process_completion') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                
-                {{-- Прогресс-бар --}}
-                
+            <div class="md:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Процесс выполнения (%)</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {{ $process_completion }}
+                </p>
             </div>
         </div>
-
-        {{-- Кнопка сохранить --}}
-        <div class="flex justify-end">
-            <button 
-                type="submit" 
-                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg bg-primary-600"
-            >
-                Сохранить
-            </button>
-        </div>
-    </form>
+    </div>
 </x-filament-panels::page>

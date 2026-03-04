@@ -224,6 +224,11 @@ class StationStatistics extends Page
         return (string) ($this->record->name ?? 'Без названия');
     }
 
+    public function getStationRegion(): string
+    {
+        return (string) ($this->record->region ?? '—');
+    }
+
     public function getStationLogoUrl(): ?string
     {
         $logoPath = $this->record->company?->logo ?? null;

@@ -12,6 +12,7 @@ trait DisplaysStationHeading
 
         $code = (string) ($this->record->code ?? '');
         $name = (string) ($this->record->name ?? '');
+        $region = (string) ($this->record->region ?? '');
 
         $parts = [];
 
@@ -21,6 +22,10 @@ trait DisplaysStationHeading
 
         if ($name !== '') {
             $parts[] = $name;
+        }
+
+        if ($region !== '') {
+            $parts[] = $region;
         }
 
         return $parts;

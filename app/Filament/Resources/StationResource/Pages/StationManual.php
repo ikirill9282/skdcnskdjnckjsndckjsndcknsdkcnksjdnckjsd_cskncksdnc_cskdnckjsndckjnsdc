@@ -45,9 +45,9 @@ class StationManual extends Page
     public function submit()
     {
         $this->validate([
-            'detergent' => 'required|string|max:255',
-            'ml' => 'required|numeric|min:0',
-            'washing_machine' => 'required|string|max:255',
+            'detergent' => 'required|integer|min:1|max:8',
+            'ml' => 'required|integer|min:0',
+            'washing_machine' => 'required|integer|min:1|max:7',
         ]);
 
         // Здесь можно добавить логику отправки команды на станцию
