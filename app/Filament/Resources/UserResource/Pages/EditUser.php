@@ -14,6 +14,12 @@ class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
 
+    protected function getSaveFormAction(): \Filament\Actions\Action
+    {
+        return parent::getSaveFormAction()
+            ->color('danger');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

@@ -10,6 +10,12 @@ class EditCompany extends EditRecord
 {
     protected static string $resource = CompanyResource::class;
 
+    protected function getSaveFormAction(): \Filament\Actions\Action
+    {
+        return parent::getSaveFormAction()
+            ->color('danger');
+    }
+
     protected function getHeaderActions(): array
     {
         return [
